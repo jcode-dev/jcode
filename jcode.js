@@ -60,7 +60,11 @@ JCODE.init = function() {
     cube.position.y = 3;
     cube.position.z = 0;
     // add the cube to the scene
-    scene.add(cube);
+    //scene.add(cube);
+ 
+    var obj = JCODE.object.load ();
+    obj.castShadow = true;
+    scene.add(obj);
 
   // position and point the camera to the center of the scene
   camera.position.x = -30;
@@ -70,13 +74,22 @@ JCODE.init = function() {
   var controls = new THREE.OrbitControls( camera, JCODE.DomElement );
 
   // add subtle ambient lighting
-  var ambientLight = new THREE.AmbientLight(0x0c0c0c);
+  var ambientLight = new THREE.AmbientLight(0x707070, 0.5);
   scene.add(ambientLight);
+
   // add spotlight for the shadows
-  var spotLight = new THREE.SpotLight(0xffffff);
-  spotLight.position.set(-40, 60, -25);
+  var spotLight = new THREE.SpotLight(0xFFFFFF, 0.7);
+  spotLight.position.set(-10, 50, 10);
   spotLight.castShadow = true;
   scene.add(spotLight);
+
+/*
+  var spotLight = new THREE.DirectionalLight(0xffffff, 1.2);
+  spotLight.position.set(5, 10, -7.5);
+  spotLight.castShadow = true;
+  scene.add(spotLight);
+*/
+
   // add the output of the renderer to the html element
   JCODE.DomElement.appendChild(renderer.domElement);
   // call the render function
@@ -165,6 +178,11 @@ JCODE.object = function(mesh){
   this.promise = Promise.resolve();
 };
 JCODE.object.prototype.update = function () {
+  this.step += 0.025;
+  this.mesh.rotation.y = (Math.cos(this.step)) - Math.PI / 2;
+  return;
+}
+JCODE.object.prototype.update2 = function () {
   // rotate the cube around its axes
   this.mesh.rotation.x += 0.002;
   this.mesh.rotation.y += 0.002;
@@ -226,6 +244,17 @@ JCODE.object.prototype.moveZ = function (d) {
 }
 
 JCODE.createObject = function( shape ){
+  var mesh = JCODE.object.load ();
+  mesh.castShadow = true;
+  JCODE.scene.add(mesh);
+  var jcode = new JCODE.object(mesh);
+  JCODE.objects.push(jcode);
+  return jcode;
+}
+
+
+/*
+JCODE.createObject = function( shape ){
   var shape = shape || 'sphere';
   var obj = {};
   switch(shape) {
@@ -256,6 +285,8 @@ JCODE.createObject = function( shape ){
   JCODE.objects.push(jcode);
   return jcode;
 }
+*/
+
 
 /*
  * ブロック
@@ -448,4 +479,136 @@ Blockly.JavaScript['jcode_code'] = function(block) {
 var code = this.getFieldValue('FIELDNAME') + ";\n";
   return [code, Blockly.JavaScript.ORDER_MEMBER];
 };
+
+JCODE.object.load = function() {
+  var jsonobj = 
+
+  {
+    "metadata": {
+      "version": 4.5,
+      "type": "Object",
+      "generator": "Object3D.toJSON"
+    },
+    "geometries": [
+      {
+        "uuid": "C507E6D4-EA6A-4F57-BDD5-605CFC5785BC",
+        "type": "SphereBufferGeometry",
+        "radius": 1,
+        "widthSegments": 32,
+        "heightSegments": 16,
+        "phiStart": 0,
+        "phiLength": 6.283185,
+        "thetaStart": 0,
+        "thetaLength": 3.141593
+      },
+      {
+        "uuid": "A61FD6B3-F839-47C7-AD6B-9D5A315A1DE6",
+        "type": "CylinderBufferGeometry",
+        "radiusTop": 1,
+        "radiusBottom": 0,
+        "height": 2,
+        "radialSegments": 32,
+        "heightSegments": 1,
+        "openEnded": false
+      },
+      {
+        "uuid": "40EA369E-5851-47C5-AF00-61749FADF2B7",
+        "type": "SphereBufferGeometry",
+        "radius": 1,
+        "widthSegments": 32,
+        "heightSegments": 16,
+        "phiStart": 0,
+        "phiLength": 6.283185,
+        "thetaStart": 0,
+        "thetaLength": 3.141593
+      }],
+    "materials": [
+      {
+        "uuid": "8E73D23A-D636-4E11-B685-DCFB47AD0FD0",
+        "type": "MeshLambertMaterial",
+        "color": 197379,
+        "emissive": 0,
+        "depthFunc": 3,
+        "depthTest": true,
+        "depthWrite": true,
+        "skinning": false,
+        "morphTargets": false,
+        "dithering": false
+      },
+      {
+        "uuid": "88520194-9788-4DAF-B6FD-6BE274E14BA7",
+        "type": "MeshLambertMaterial",
+        "color": 510190,
+        "emissive": 0,
+        "depthFunc": 3,
+        "depthTest": true,
+        "depthWrite": true,
+        "skinning": false,
+        "morphTargets": false,
+        "dithering": false
+      },
+      {
+        "uuid": "94AF5EDB-0D0D-41A4-BF52-757696683E5F",
+        "type": "MeshLambertMaterial",
+        "color": 16248578,
+        "emissive": 0,
+        "depthFunc": 3,
+        "depthTest": true,
+        "depthWrite": true,
+        "skinning": false,
+        "morphTargets": false,
+        "dithering": false
+      }],
+    "object": {
+      "uuid": "3A4436A2-E212-449D-9C06-BBC7D5B03D4A",
+      "type": "Group",
+      "name": "Group 1",
+      "castShadow": true,
+      "receiveShadow": true,
+      "matrix": [0,0,1,0,0,1,0,0,-1,0,0,0,0.088527,0.937041,0,1],
+      "children": [
+        {
+          "uuid": "9D4AAD1F-7487-4E1B-BF36-C4087042B418",
+          "type": "Mesh",
+          "name": "Sphere 1",
+          "matrix": [0.2,0,0,0,0,0.2,0,0,0,0,0.2,0,0.744314,6.425803,1.095651,1],
+          "geometry": "C507E6D4-EA6A-4F57-BDD5-605CFC5785BC",
+          "material": "8E73D23A-D636-4E11-B685-DCFB47AD0FD0"
+        },
+        {
+          "uuid": "BF15D2A5-E1AD-40A4-B80D-E03496BDA7C3",
+          "type": "Mesh",
+          "name": "Cylinder 2",
+          "castShadow": true,
+          "receiveShadow": true,
+          "matrix": [2,0,0,0,0,3,0,0,0,0,2,0,0,2,0,1],
+          "geometry": "A61FD6B3-F839-47C7-AD6B-9D5A315A1DE6",
+          "material": "88520194-9788-4DAF-B6FD-6BE274E14BA7"
+        },
+        {
+          "uuid": "51169206-4CA1-4966-B061-88BD8DB4D2BD",
+          "type": "Mesh",
+          "name": "Sphere 3",
+          "castShadow": true,
+          "receiveShadow": true,
+          "matrix": [1.5,0,0,0,0,1.5,0,0,0,0,1.5,0,0,6.260093,0,1],
+          "geometry": "40EA369E-5851-47C5-AF00-61749FADF2B7",
+          "material": "94AF5EDB-0D0D-41A4-BF52-757696683E5F"
+        },
+        {
+          "uuid": "E988CC3D-B772-4E49-B8F4-87D972C47B12",
+          "type": "Mesh",
+          "name": "Sphere 1",
+          "matrix": [0.2,0,0,0,0,0.2,0,0,0,0,0.2,0,-0.431375,6.431071,1.250825,1],
+          "geometry": "C507E6D4-EA6A-4F57-BDD5-605CFC5785BC",
+          "material": "8E73D23A-D636-4E11-B685-DCFB47AD0FD0"
+        }]
+    }
+  }
+
+
+  var loader = new THREE.ObjectLoader();
+  return loader.parse(jsonobj);
+}
+
 
