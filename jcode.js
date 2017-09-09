@@ -23,7 +23,7 @@ JCODE.init = function() {
 
   var onresize = function(e) {
     // container の調整
-    height = $('#top-component').height() - 6;
+    height = $('#top-component').height() - 38;
     width = height / 300 * 400;
     renderer.setSize(width, height);
   };

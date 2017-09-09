@@ -239,7 +239,7 @@ Code.LANG = Code.getLang();
  * List of tab names.
  * @private
  */
-Code.TABS_ = ['blocks', 'javascript', 'php', 'python', 'dart', 'lua', 'xml'];
+Code.TABS_ = ['blocks', 'javascript', 'xml'];
 
 Code.selected = 'blocks';
 
@@ -358,7 +358,7 @@ Code.init = function() {
   var onresize = function(e) {
     // container の調整
     $('#content_area').height($('#bottom-component').height() - $('#content_panel').height() - 64);
-    // メニューの調整
+    // Toolbox メニューの調整
     var bBox = Code.getBBox_(container);
     for (var i = 0; i < Code.TABS_.length; i++) {
       var el = document.getElementById('content_' + Code.TABS_[i]);
