@@ -414,8 +414,6 @@ Code.init = function() {
 
   // カスタムツールボックス
   Code.workspace.registerToolboxCategoryCallback(
-    'COLOUR_PALETTE', JCODE.coloursFlyoutCallback);
-  Code.workspace.registerToolboxCategoryCallback(
      'JCODE_OBJECT', JCODE.jcodeObjectCallback);
 
   

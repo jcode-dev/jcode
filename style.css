@@ -161,3 +161,79 @@ button {
 .run {
   background-position: -42px 0px;
 }
+
+
+
+.title {
+  background-color:#00adbc;
+  color: #fff;
+}
+.title a {
+  background-color:#00adbc;
+  color: #fff;
+  text-decoration: none;
+}
+#WebGL-output {
+  border: 1px solid #c6c6c6;
+  margin: 0px;
+}
+#instruction {
+  border: 0px solid #c6c6c6;
+  font-size: 1.2em;
+  margin: 10px;
+}
+/* 実行ボタンなど */
+.controls{
+  position: relative;
+  padding: 1px;
+  background-color: rgba(255,255,255,0.9);
+  border: 1px solid #c6c6c6;
+}
+/* 吹き出し本体 */
+.balloon{
+  position: relative;
+  padding: 20px;
+  background-color: rgba(255,255,255,0.9);
+  border: 1px solid #c6c6c6;
+}
+/* アイコンを下に表示 */
+.balloon::before{
+  content: '';
+  position: absolute;
+  display: block;
+  width: 0;
+  height: 0;
+  left: 20px;
+  bottom: -15px;
+  border-top: 15px solid #c6c6c6;
+  border-right: 15px solid transparent;
+  border-left: 15px solid transparent;
+}
+.balloon::after{
+  content: '';
+  position: absolute;
+  display: block;
+  width: 0;
+  height: 0;
+  left: 20px;
+  bottom: -13px;
+  border-top: 15px solid #fff;
+  border-right: 15px solid transparent;
+  border-left: 15px solid transparent;
+}
+/* Position the button on the bottom of the page. */
+#WebGL-ui {
+  position: absolute;
+  bottom: 10px;
+  left: 20%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-family: 'Karla', sans-serif;
+  z-index: 1;
+}
+
+a#magic-window {
+  display: block;
+  color: black;
+  margin-top: 1em;
+}
