@@ -1,3 +1,7 @@
+/*
+THREE.TextBoard.Object
+３次元空間内のテキストオブジェクト
+*/
 //平面オブジェクト＋テクスチャマッピングによる
 var TextBoardCanvas = function( parameter ){
     parameter = parameter || {};

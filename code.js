@@ -414,8 +414,10 @@ Code.init = function() {
 
   // カスタムツールボックス
   Code.workspace.registerToolboxCategoryCallback(
-     'JCODE_OBJECT', JCODE.jcodeObjectCallback);
-
+    'JCODE_OBJECT', JCODE.jcodeObjectCallback);
+  Code.workspace.registerToolboxCategoryCallback(
+    'JCODE_INSTRUCTION', JCODE.jcodeInstractionCallback);
+ 
   
       // Add to reserved word list: Local variables in execution environment (runJS)
   // and the infinite loop detection function.
@@ -543,14 +545,33 @@ Code.discard = function() {
 // Load the Code demo's language strings.
 document.write('<script src="./msg/msg/' + Code.LANG + '.js"></script>\n');
 // Load Blockly's language strings.
-document.write('<script src="./msg/js/' + Code.LANG + '.js"></script>\n');
+document.write('<script src="/blockly/msg/js/' + Code.LANG + '.js"></script>\n');
 
 
 //window.addEventListener('load', Code.init);
 //window.addEventListener('load', init);
 window.addEventListener("load", function(event) {
   console.log("All resources finished loading!");
+
+  Blockly.HSV_SATURATION = 0.60;
+  Blockly.HSV_VALUE = 0.80;
+  
   JCODE.init();
   Code.init();
   languageMenu.addEventListener('change', Code.changeLanguage, true);
+
+/*  // 初期化
+  JCODE.instruction ={};
+  JCODE.instruction.init = function() {
+    JCODE.instruction.balloon = new JCODE.balloon();
+
+    JCODE.instruction.add = new 
+    function(html) {
+        $('#JCODE-instruction').html(html)
+    };
+
+    return this;
+  };
+  JCODE.instruction.init();
+*/
 });

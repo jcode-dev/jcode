@@ -44,7 +44,7 @@ JCODE.jcodeObjectCallback = function(workspace) {
 Blockly.Blocks['JCODE_obj_create'] = {
   init: function() {
     this.jsonInit({
-      "message0": "新しい %1 を作る",
+      "message0": "新しい %1",
       "args0": [
         {"type": "field_dropdown", "name": "FIELDNAME",
           "options": [
@@ -55,7 +55,7 @@ Blockly.Blocks['JCODE_obj_create'] = {
         }
       ],
       "output": null,
-      "colour": 60
+      "colour": 309
     });
     // Assign 'this' to a variable for use in the tooltip closure below.
     var thisBlock = this;
@@ -279,8 +279,9 @@ Blockly.JavaScript['JCODE_obj_wait'] = function(block) {
 Blockly.Blocks['JCODE_obj_move'] = {
   init: function() {
     this.jsonInit({
-      "message0": "が %1 に うごく %2 センチ",
+      "message0": "%1 が %3 センチ %2 に うごく ",
       "args0": [
+        {"type": "field_variable", "name": "VAR", "variable": "obj"},
         {"type": "field_dropdown", "name": "FIELDNAME",
           "options": [
             [ "まえ", "moveForward" ],
@@ -293,7 +294,8 @@ Blockly.Blocks['JCODE_obj_move'] = {
         },
         {"type": "input_value", "name": "VALUE"}
       ],
-      "output": null,
+      "previousStatement": null,
+      "nextStatement": null,
       "colour": 60
     });
     // Assign 'this' to a variable for use in the tooltip closure below.
@@ -301,11 +303,12 @@ Blockly.Blocks['JCODE_obj_move'] = {
   }
 };
 Blockly.JavaScript['JCODE_obj_move'] = function(block) {
+  var obj = this.getFieldValue('VAR');
   var text = Blockly.JavaScript.valueToCode(block, 'VALUE',
       Blockly.JavaScript.ORDER_MEMBER) || '\'\'';
   var operator = this.getFieldValue('FIELDNAME');
-  var code = '.' + operator + '(' + text + ')';
-  return [code, Blockly.JavaScript.ORDER_MEMBER];
+  var code = obj + '.' + operator + '(' + text + ')';
+  return code + ";\n";
 };
 
 JCODE.obj.prototype.moveForward = function (d) {
@@ -395,7 +398,7 @@ JCODE.obj.prototype.update1 = function () {
 Blockly.Blocks['JCODE_obj_without_return'] = {
   init: function() {
     this.jsonInit({
-      "message0": " %1 %2",
+      "message0": "オブジェクト %1 は %2",
       "args0": [
         {"type": "field_variable", "name": "VAR", "variable": "obj"},
         {"type": "input_value", "name": "VALUE"}
@@ -417,7 +420,7 @@ Blockly.JavaScript['JCODE_obj_without_return'] = function(block) {
   Blockly.JavaScript.ORDER_MEMBER) || '\'\'';
   var operator = this.getFieldValue('VAR');
   var subString = "substr";
-  var code = operator + text;
+  var code = "var " + operator + " = " + text;
   return code + ';\n';
 };
 
