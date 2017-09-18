@@ -108,7 +108,7 @@ Code.getLang = function() {
   var lang = Code.getStringParamFromUrl('lang', '');
   if (Code.LANGUAGE_NAME[lang] === undefined) {
     // Default to English.
-    lang = 'en';
+    lang = 'ja';
   }
   return lang;
 };
@@ -400,14 +400,14 @@ Code.init = function() {
 
   Code.workspace = Blockly.inject('content_blocks',
       {grid:
-          {spacing: 25,
-           length: 3,
-           colour: '#ccc',
-           snap: true},
-       media: './media/',
-       rtl: rtl,
-       toolbox: toolboxXml,
-       zoom:
+          { spacing: 25,
+            length: 3,
+            colour: '#ccc',
+            snap: true},
+            media: '/jcode/media/',
+            rtl: rtl,
+            toolbox: toolboxXml,
+            zoom:
            {controls: true,
             wheel: true}
       });
@@ -543,7 +543,7 @@ Code.discard = function() {
 };
 
 // Load the Code demo's language strings.
-document.write('<script src="./msg/msg/' + Code.LANG + '.js"></script>\n');
+document.write('<script src="/jcode/msg/msg/' + Code.LANG + '.js"></script>\n');
 // Load Blockly's language strings.
 document.write('<script src="/blockly/msg/js/' + Code.LANG + '.js"></script>\n');
 
