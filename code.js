@@ -350,7 +350,7 @@ Code.renderContent = function() {
 /**
  * Initialize Blockly.  Called on page load.
  */
-Code.init = function() {
+Code.initBlockly = function(toolboxText) {
   Code.initLanguage();
 
   var rtl = Code.isRtl();
@@ -372,7 +372,7 @@ Code.init = function() {
       el.style.width = (2 * bBox.width - el.offsetWidth) + 'px';
     }
     // Make the 'Blocks' tab line up with the toolbox.
-    if (Code.workspace && Code.workspace.toolbox_.width) {
+    if (Code.workspace && Code.workspace.toolbox_ && Code.workspace.toolbox_.width) {
       document.getElementById('tab_blocks').style.minWidth =
           (Code.workspace.toolbox_.width - 38) + 'px';
           // Account for the 19 pixel margin and on each side.
@@ -394,27 +394,26 @@ Code.init = function() {
     }
   }
 
-  // Construct the toolbox XML.
-  var toolboxText = document.getElementById('toolbox').outerHTML;
   var toolboxXml = Blockly.Xml.textToDom(toolboxText);
-
   Code.workspace = Blockly.inject('content_blocks',
       {grid:
-          { spacing: 25,
-            length: 3,
-            colour: '#ccc',
-            snap: true},
-            media: '/jcode/media/',
-            rtl: rtl,
-            toolbox: toolboxXml,
-            zoom:
-           {controls: true,
-            wheel: true}
+        { spacing: 25,
+          length: 3,
+          colour: '#ccc',
+          snap: true},
+          media: '/jcode/media/',
+          rtl: rtl,
+          toolbox: toolboxXml,
+          zoom:
+          {controls: true,
+          wheel: true}
       });
 
   // カスタムツールボックス
   Code.workspace.registerToolboxCategoryCallback(
     'JCODE_OBJECT', JCODE.jcodeObjectCallback);
+  Code.workspace.registerToolboxCategoryCallback(
+    'JCODE_THREE', JCODE.three.toolbox);
   Code.workspace.registerToolboxCategoryCallback(
     'JCODE_INSTRUCTION', JCODE.jcodeInstractionCallback);
  
@@ -557,9 +556,9 @@ window.addEventListener("load", function(event) {
   Blockly.HSV_VALUE = 0.80;
   
   JCODE.init();
-  Code.init();
+  // reload Blocks
   languageMenu.addEventListener('change', Code.changeLanguage, true);
-
+  
 /*  // 初期化
   JCODE.instruction ={};
   JCODE.instruction.init = function() {

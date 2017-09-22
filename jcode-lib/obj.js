@@ -3,9 +3,125 @@
  */
 // JCODE オブジェクトのツールボックス JCODE_OBJECT
 
+JCODE.objList = {
+  dropdown: {},  // JCODE_obj_dropdown
+  setter: {
+    msg: "新しいオブジェクト %1 は %2", 
+    msg2: "var %1 = new JCODE.obj( %2 );", 
+    code: function(operator, text) {
+      return "var " + operator + " = new JCODE.obj(" + text + ");\n";
+    }
+  },
+  moveForward: {
+    msg: "%1 が %2 センチ 前にうごく ",
+    msg2: "%1.moveForward( %2 );",
+    code: function(operator, text) {
+      return operator + ".moveForward(" + text + ");\n";
+    }
+  },
+  upward: {
+    msg: "%1 が %2 度 上を向く ",
+    code: function(operator, text) {
+      return operator + ".upward(" + text + ");\n";
+    }
+  },
+  turnRight: {
+    msg: "%1 が %2 度 右にまがる ",
+    code: function(operator, text) {
+      return operator + ".turnRight(" + text + ");\n";
+    }
+  },
+  wait  : {},
+  move  : {},
+  without_return: {},
+  with_return:  {}
+};
+// CUSTOM toolbox
+JCODE.jcodeObjectCallback = function(workspace) {
+  var xmlList = [];
+  var obj = JCODE.objList;
+  for (var p in obj) {
+    var blockText = '<xml>' +
+    '<block type="JCODE_obj_'+p+'">' +
+    '</block>' +
+    '</xml>';
+    //console.log(blockText);
+    var block = Blockly.Xml.textToDom(blockText).firstChild;
+    xmlList.push(block);
+  }              
+  return xmlList;
+};
+
+Blockly.Blocks['JCODE_obj_dropdown'] = {
+  init: function() {
+    this.jsonInit({
+      "output": null,
+      "colour": 60
+    });
+    this.appendDummyInput()
+    .appendField('種類:')
+    .appendField(new Blockly.FieldDropdown([
+      [ "たま", "sphere" ],
+      [ "ぴん", "pin" ],
+      [ "はこ", "box" ]
+      ]), 'FIELDNAME');
+  }
+};
+Blockly.JavaScript['JCODE_obj_dropdown'] = function(block) {
+  var text = this.getFieldValue('FIELDNAME');
+  var code = '"' + text + '"';
+  return [code, Blockly.JavaScript.ORDER_MEMBER];
+};
+
+/*
+ *  オブジェクトの値を返さない JCODE.obj.withoutReturn();
+ */
+
+JCODE.createBlock = function(obj, prefix, funcname) {
+  var blockid = prefix + funcname;
+  var pno = (typeof obj[funcname].pno === "undefined") ? 1 : obj[funcname].pno;
+  var args = [];
+  args.push({"type": "field_variable", "name": "VAR", "variable": "obj"});
+  if (pno) {
+    args.push({"type": "input_value", "name": "VALUE"});
+  }
+  Blockly.Blocks[blockid] = {
+    init: function() {
+      this.jsonInit({
+        "message0": obj[funcname].msg,
+        "args0": args,
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": 65
+      });
+      this.setInputsInline(true);
+      // Assign 'this' to a variable for use in the tooltip closure below.
+      var thisBlock = this;
+      this.setTooltip(function() {
+        return 'へんすう "%1"　にオブジェクトをわりあて.'.replace('%1',
+            thisBlock.getFieldValue('VAR'));
+      });
+    }
+  };
+  Blockly.JavaScript[blockid] = function(block) {
+    var text = Blockly.JavaScript.valueToCode(block, 'VALUE',
+    Blockly.JavaScript.ORDER_MEMBER) || '\'\'';
+    var operator = this.getFieldValue('VAR');
+    var subString = "substr";
+    console.log(text);
+    var code = obj[funcname].code(operator, text);
+    return code ;
+  };
+};
+
+JCODE.createBlock(JCODE.objList, "JCODE_obj_", "setter");
+JCODE.createBlock(JCODE.objList, "JCODE_obj_", "moveForward");
+JCODE.createBlock(JCODE.objList, "JCODE_obj_", "turnRight");
+JCODE.createBlock(JCODE.objList, "JCODE_obj_", "upward");
+
 
 JCODE.obj = function(shape){
-  this.mesh = {};
+  this.outer = {};
   JCODE.objects.push(this);
   this.step = 0;
   this.promise = Promise.resolve();
@@ -14,57 +130,6 @@ JCODE.obj = function(shape){
       this.loader(shape);
   }
   return this;
-};
-
-
-JCODE.jcodeObjectCallback = function(workspace) {
-  // Returns an array of hex colours, e.g. ['#4286f4', '#ef0447']
-  var list = [
-    "JCODE_obj_create",
-    "JCODE_obj_wait",
-    "JCODE_obj_move",
-    "JCODE_obj_without_return",
-    "JCODE_obj_with_return"
-  ];
-  var xmlList = [];
-    for (var i = 0; i < list.length; i++) {
-      var blockText = '<xml>' +
-          '<block type="'+list[i]+'">' +
-          '</block>' +
-          '</xml>';
-      var block = Blockly.Xml.textToDom(blockText).firstChild;
-      xmlList.push(block);
-    }
-  return xmlList;
-};
-
-/*
- * ブロック
- */
-Blockly.Blocks['JCODE_obj_create'] = {
-  init: function() {
-    this.jsonInit({
-      "message0": "新しい %1",
-      "args0": [
-        {"type": "field_dropdown", "name": "FIELDNAME",
-          "options": [
-            [ "たま", "sphere" ],
-            [ "ぴん", "pin" ],
-            [ "はこ", "box" ]
-          ]
-        }
-      ],
-      "output": null,
-      "colour": 309
-    });
-    // Assign 'this' to a variable for use in the tooltip closure below.
-    var thisBlock = this;
-  }
-};
-Blockly.JavaScript['JCODE_obj_create'] = function(block) {
-  var text = this.getFieldValue('FIELDNAME');
-  var code = 'new JCODE.obj("' + text + '")';
-  return [code, Blockly.JavaScript.ORDER_MEMBER];
 };
 
 JCODE.obj.prototype.loader = function( shape ){
@@ -96,8 +161,26 @@ JCODE.obj.prototype.loader = function( shape ){
       break;
     }
     mesh.castShadow = true;
-    JCODE.scene.add(mesh);
-    this.mesh = mesh;
+
+    var dir = new THREE.Vector3( 0, 0, 5 );
+    var origin = new THREE.Vector3( 0, 4, 4 );
+    var length = 5;
+    var hex = 0xffff00;
+    var arrowHelper = new THREE.ArrowHelper( dir, origin, length, hex, 2, 1 );
+    
+    var axis = new THREE.AxisHelper(20);
+    var inner = new THREE.Group();
+    inner.add(mesh);
+    inner.add(axis);
+    inner.add(arrowHelper);
+    var outer = new THREE.Group();
+    outer.add(inner);
+
+    JCODE.scene.add(outer);
+    outer.userData = {};
+    outer.userData.inner =inner;
+    outer.userData.axis = axis;
+    this.outer = outer;
     return this;
 }
 
@@ -312,83 +395,118 @@ Blockly.JavaScript['JCODE_obj_move'] = function(block) {
 };
 
 JCODE.obj.prototype.moveForward = function (d) {
-  var mesh = this.mesh;
+  var mesh = this.outer;
   this.promise = this.promise.then(
     function () {
       return new Promise(function (resolve, reject) {
         setTimeout(function(){
-          mesh.position.z += d;
           resolve();
         },1500);
-      })
-    }
-  );
-}
-JCODE.obj.prototype.moveBack = function (d) {
-  var mesh = this.mesh;
-  this.promise = this.promise.then(
-    function () {
-      return new Promise(function (resolve, reject) {
-        setTimeout(function(){
-          mesh.position.z -= d;
-          resolve();
-        },1500);
-      })
-    }
-  );
-}
-JCODE.obj.prototype.moveLeft = function (d) {
-  var mesh = this.mesh;
-  this.promise = this.promise.then(
-    function () {
-      return new Promise(function (resolve, reject) {
-        setTimeout(function(){
-          mesh.position.x -= d;
-          resolve();
-        },1500);
-      })
-    }
-  );
-}
-JCODE.obj.prototype.moveRight = function (d) {
-  var mesh = this.mesh;
-  this.promise = this.promise.then(
-    function () {
-      return new Promise(function (resolve, reject) {
-        setTimeout(function(){
-          mesh.position.x += d;
-          resolve();
-        },1500);
+        var coords = mesh.position.clone();
+        var direction = mesh.position.clone();
+        console.log(coords);
+        var forward = new THREE.Vector4(0, 0, 1, 0);
+        forward.applyMatrix4(mesh.matrix).normalize();
+        direction.addVectors( coords, forward.multiplyScalar( d ) );
+        console.log(direction);
+
+        var tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
+        .to( direction , 1200) // Move to (300, 200) in 1 second.
+        .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
+        .onUpdate(function() { // Called after tween.js updates 'coords'.
+            // Move 'box' to the position described by 'coords' with a CSS translation.
+            mesh.position.x = coords.x;
+            mesh.position.y = coords.y;
+            mesh.position.z = coords.z;
+          })
+        .start(); // Start the tween immediately.
       })
     }
   );
 }
 
+JCODE.obj.prototype.turnRight = function (d) {
+  var outer = this.outer;
+  this.promise = this.promise.then(
+    function () {
+      return new Promise(function (resolve, reject) {
+        setTimeout(function(){
+          resolve();
+        },1400);
 
+        //全体を右に曲げる
+        var coords2 = outer.quaternion.clone();
+        var axis = new THREE.Vector4(0, 1, 0, 0);
+        axis.applyMatrix4(outer.matrix).normalize();
+        var direction = new THREE.Quaternion();
+        direction.setFromAxisAngle(axis, Math.PI * -d / 180).multiply(coords2);
+        outer.quaternion.copy(direction);
+        //中を左にまげて元に戻すアニメーション
+        var start = outer.userData.inner.rotation.clone();
+        var goal = outer.userData.inner.rotation.clone();
+        start.y = goal.y + (Math.PI * d / 180);
+        var tween = new TWEEN.Tween(start) // Create a new tween that modifies 'coords'.
+        .to( goal , 1200) // Move to (300, 200) in 1 second.
+        .easing(TWEEN.Easing.Linear.None) // Use an easing function to make the animation smooth.
+        .onUpdate(function() { // Called after tween.js updates 'coords'.
+            // Move 'box' to the position described by 'coords' with a CSS translation.
+            outer.userData.inner.rotation.y = start.y;
+          })
+        .start(); // Start the tween immediately.
+      })
+    }
+  );
+}
+JCODE.obj.prototype.upward = function (d) {
+  var mesh = this.outer;
+  this.promise = this.promise.then(
+    function () {
+      return new Promise(function (resolve, reject) {
+        setTimeout(function(){
+          resolve();
+        },1400);
 
-
+        //mesh.useQuaternion = true;
+        var coords = mesh.quaternion.clone();
+        //var direction = mesh.rotation.clone();
+        var axis = new THREE.Vector4(1, 0, 0, 0);
+        axis.applyMatrix4(mesh.matrix).normalize();
+        var direction = new THREE.Quaternion();
+        direction.setFromAxisAngle(axis, Math.PI * -d / 180).multiply(coords);
+        console.log(coords);
+        console.log(direction);
+        var tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
+        .to( direction , 1200) // Move to (300, 200) in 1 second.
+        .easing(TWEEN.Easing.Linear.None) // Use an easing function to make the animation smooth.
+        .onUpdate(function() { // Called after tween.js updates 'coords'.
+            // Move 'box' to the position described by 'coords' with a CSS translation.
+            mesh.quaternion.copy(coords);
+          })
+        .start(); // Start the tween immediately.
+      })
+    }
+  );
+}
 
 JCODE.obj.prototype.update = function () {
   this.step += 0.025;
-  this.mesh.rotation.y = (Math.cos(this.step)) /2;//- Math.PI / 4;
+  this.outer.rotation.y = (Math.cos(this.step)) /2;//- Math.PI / 4;
   return;
 }
 JCODE.obj.prototype.update2 = function () {
   // rotate the cube around its axes
-  this.mesh.rotation.x += 0.002;
-  this.mesh.rotation.y += 0.002;
-  this.mesh.rotation.z += 0.002;
+  this.outer.rotation.x += 0.002;
+  this.outer.rotation.y += 0.002;
+  this.outer.rotation.z += 0.002;
   return;
 }
 JCODE.obj.prototype.update1 = function () {
   // bounce the sphere up and down
   this.step += 0.04;
-  this.mesh.position.x = 20 + ( 10 * (Math.cos(this.step)));
-  this.mesh.position.y = 2 + ( 10 * Math.abs(Math.sin(this.step)));
+  this.outer.position.x = 20 + ( 10 * (Math.cos(this.step)));
+  this.outer.position.y = 2 + ( 10 * Math.abs(Math.sin(this.step)));
   return;
 }
-
-
 
   
 /*
@@ -438,6 +556,7 @@ Blockly.JavaScript['JCODE_obj_without_return'] = function(block) {
         "output": null,
         "colour": 60
       });
+      this.setInputsInline(true);
       // Assign 'this' to a variable for use in the tooltip closure below.
       var thisBlock = this;
       this.setTooltip(function() {

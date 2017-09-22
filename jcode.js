@@ -38,30 +38,31 @@ JCODE.init = function() {
   //scene.add(axes);
 
   // 方眼紙を書く
-  if (true) {
+  if (false) {
     var gridHelper = new THREE.GridHelper(100, 20,0x3cb371,0x5f9ea0);
-    gridHelper.rotation.x = 0.5 * Math.PI;
+    gridHelper.rotation.x = -0.5 * Math.PI;
     gridHelper.rotation.y = 0; //-0.5 * Math.PI;
     gridHelper.position.x = 0;
     gridHelper.position.z = -0.1;
     scene.add(gridHelper);
   }
 if (true){
-  // create the ground plane
-    var planeGeometry = new THREE.PlaneGeometry(100, 100, 20, 20);
+  // 地面
+    var planeGeometry = new THREE.PlaneGeometry(60, 40);
     var planeMaterial = new THREE.MeshPhongMaterial({color: 0xFFFFFF, opacity:0.8, transparent:true});
     var plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.receiveShadow = true;
     // rotate and position the plane
-    plane.position.y = 0; //-0.5 * Math.PI;
+    plane.rotation.x = -0.5 * Math.PI;
     plane.position.x = 0;
+    plane.position.y = 0;
     plane.position.z = 0;
     //plane.position.z = -0.1;
     // add the plane to the scene
     scene.add(plane);
 }
-if (true){
-  // create the ground plane
+if (false){
+  // 後ろの壁
     var planeGeometry = new THREE.PlaneGeometry(100, 100, 20, 20);
     var planeMaterial = new THREE.MeshPhongMaterial({color: 0xFFFF00, opacity:0.1, transparent:true});
     var plane = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -75,26 +76,36 @@ if (true){
     // add the plane to the scene
     scene.add(plane);
 }
-
+// カメラ
   // position and point the camera to the center of the scene
-  camera.position.x = 0;
-  camera.position.y = -40;
-  camera.position.z = 50;
+  camera.position.x = -30;
+  camera.position.y = 40;
+  camera.position.z = 30;
   camera.lookAt(scene.position);
+// マウスのコントロール
   var controls = new THREE.OrbitControls( camera, JCODE.DomElement );
 
-  // add subtle ambient lighting
+// ライト
+  var hemisphereLight = new THREE.HemisphereLight( 0x0000ff, 0x00ff00, 0.3);
+  hemisphereLight.position.set( 0, 500, 0);
+  scene.add( hemisphereLight );
+
+    // add spotlight for the shadows
+    var spotLight = new THREE.SpotLight(0xFFFFFF);
+    spotLight.position.set(-20, 30, -5);
+    spotLight.castShadow = true;
+    scene.add(spotLight);
+  
+if (false) {
+
+// add subtle ambient lighting
   var ambientLight = new THREE.AmbientLight(0x888888);
   scene.add(ambientLight);
 
-  // add spotlight for the shadows
-  var spotLight = new THREE.DirectionalLight(0xFFFFFF);
-  spotLight.position.set(-5, -5, 20);
-  spotLight.castShadow = true;
-  scene.add(spotLight);
-
+  
+}
 	//スカイドームの利用
-	if (true) {
+	if (false) {
 		var vertexShader = "//バーテックスシェーダー\n" +
 		"//頂点シェーダーからフラグメントシェーダーへの転送する変数\n" +
 		"varying vec3 vWorldPosition;\n" +
@@ -181,9 +192,10 @@ scene.add( textBoardObject.cleatePlaneObject() );
     */
     //var delta = clock.getDelta();
     controls.update();
+    TWEEN.update();
 
     for (var i=0; i < JCODE.objects.length; i++) {
-      JCODE.objects[i].update();
+      //JCODE.objects[i].update();
     }
 
     /*
@@ -212,4 +224,20 @@ scene.add( textBoardObject.cleatePlaneObject() );
       return stats;
   }
 }
-
+/**
+* Execute the user's code.
+* Just a quick and dirty eval.  Catch infinite loops.
+*/
+JCODE.runScript = function(inst) {
+  var timeouts = 0;
+  var checkTimeout = function() {
+    if (timeouts++ > 1000000) {
+      throw MSG['timeout'];
+    }
+  };
+  try {
+    eval(inst);
+  } catch (e) {
+    alert(MSG['badCode'].replace('%1', e));
+  }
+};
