@@ -42,7 +42,7 @@ https://raw.github.com/shagstrom/split-pane/master/LICENSE
 	width: 100%;
 	left: 0;
 	cursor: row-resize;
-	z-index: 2;
+	z-index: 9999;
 }
 
 .split-pane.fixed-top > .split-pane-divider > .split-pane-divider-inner,

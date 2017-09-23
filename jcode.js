@@ -32,11 +32,6 @@ JCODE.init = function() {
   };
   window.addEventListener('resize', onresize, false);
 
-
-  // show axes in the screen
-  //var axes = new THREE.AxisHelper(20);
-  //scene.add(axes);
-
   // 方眼紙を書く
   if (false) {
     var gridHelper = new THREE.GridHelper(100, 20,0x3cb371,0x5f9ea0);
@@ -48,18 +43,33 @@ JCODE.init = function() {
   }
 if (true){
   // 地面
-    var planeGeometry = new THREE.PlaneGeometry(60, 40);
-    var planeMaterial = new THREE.MeshPhongMaterial({color: 0xFFFFFF, opacity:0.8, transparent:true});
-    var plane = new THREE.Mesh(planeGeometry, planeMaterial);
-    plane.receiveShadow = true;
-    // rotate and position the plane
-    plane.rotation.x = -0.5 * Math.PI;
-    plane.position.x = 0;
-    plane.position.y = 0;
-    plane.position.z = 0;
-    //plane.position.z = -0.1;
-    // add the plane to the scene
-    scene.add(plane);
+  var floor = new THREE.Group();
+  var planeGeometry = new THREE.PlaneGeometry(10, 10);
+  var planeMaterial1 = new THREE.MeshPhongMaterial({color: 0xFFFFFF, opacity:0.8, transparent:true});
+  var plane1 = new THREE.Mesh(planeGeometry, planeMaterial1);
+  plane1.receiveShadow = true;
+  // rotate and position the plane
+  plane1.rotation.x = -0.5 * Math.PI;
+  plane1.position.x = 0;
+  plane1.position.y = 0;
+  plane1.position.z = 0;
+  var planeMaterial2 = new THREE.MeshPhongMaterial({color: 0x303030, opacity:0.8, transparent:true});
+  var plane2 = new THREE.Mesh(planeGeometry, planeMaterial2);
+  plane2.receiveShadow = true;
+  // rotate and position the plane
+  plane2.rotation.x = -0.5 * Math.PI;
+  plane2.position.x = 10;
+  plane2.position.y = 0;
+  plane2.position.z = 0;
+  for (var x=0; x<10; x++) {
+    for (var z=0; z<10; z++) {
+      var p = (( x + z) % 2) ? plane1.clone() : plane2.clone();
+      p.position.z = z * 10 - 50;
+      p.position.x = x * 10 - 50;
+      floor.add(p);
+    }
+  }
+  scene.add(floor);
 }
 if (false){
   // 後ろの壁
@@ -78,35 +88,42 @@ if (false){
 }
 // カメラ
   // position and point the camera to the center of the scene
-  camera.position.x = -30;
-  camera.position.y = 40;
-  camera.position.z = 30;
+  camera.position.x = 15;
+  camera.position.y = 25;
+  camera.position.z = 45;
   camera.lookAt(scene.position);
 // マウスのコントロール
   var controls = new THREE.OrbitControls( camera, JCODE.DomElement );
 
 // ライト
-  var hemisphereLight = new THREE.HemisphereLight( 0x0000ff, 0x00ff00, 0.3);
-  hemisphereLight.position.set( 0, 500, 0);
-  scene.add( hemisphereLight );
 
     // add spotlight for the shadows
     var spotLight = new THREE.SpotLight(0xFFFFFF);
-    spotLight.position.set(-20, 30, -5);
+    spotLight.position.set(15, 45, 30);
     spotLight.castShadow = true;
     scene.add(spotLight);
   
-if (false) {
+  if (true) {
+    var hemisphereLight = new THREE.HemisphereLight( 0x00003f, 0x00ff00, 0.3);
+    hemisphereLight.position.set( 0, 500, 0);
+    scene.add( hemisphereLight );
+  }else{
+  // add subtle ambient lighting
+    var ambientLight = new THREE.AmbientLight(0x888888);
+    scene.add(ambientLight);
 
-// add subtle ambient lighting
-  var ambientLight = new THREE.AmbientLight(0x888888);
-  scene.add(ambientLight);
-
-  
-}
+  }
 	//スカイドームの利用
-	if (false) {
-		var vertexShader = "//バーテックスシェーダー\n" +
+	if (true) {
+    var skydome = {
+			enabled : true,         //スカイドーム利用の有無
+			radius  : 100,           //スカイドームの半径
+			topColor : 0x2E52FF,     //ドーム天頂色
+			bottomColor : 0xFFFFFF,  //ドーム底面色
+			exp : 0.8,               //混合指数
+			offset : 20               //高さ基準点
+    };
+    		var vertexShader = "//バーテックスシェーダー\n" +
 		"//頂点シェーダーからフラグメントシェーダーへの転送する変数\n" +
 		"varying vec3 vWorldPosition;\n" +
 		"void main( ) {\n" +
@@ -126,17 +143,17 @@ if (false) {
 		"varying vec3 vWorldPosition;\n" +
 		"void main( ) {\n" +
 		"	//高さの取得\n" +
-		"	float h = normalize( vWorldPosition + vec3(0, 0, offset) ).z;\n" +
+		"	float h = normalize( vWorldPosition + vec3(0, offset, 0) ).y;\n" +
 		"	if( h < 0.0) h = 0.0;\n" +
 		"	gl_FragColor = vec4( mix( bottomColor, topColor, pow(h, exp) ), 1.0 );\n" +
 		"}\n";
     //形状オブジェクトの宣言と生成
-    var geometry = new THREE.SphereGeometry( 800, 100, 100); //radius  : 200 スカイドームの半径
+    var geometry = new THREE.SphereGeometry(  skydome.radius, 100, 100 );
     var uniforms = {
-      topColor:  { type: "c", value: new THREE.Color( ).setHex( 0x2E52FF ) },
-      bottomColor:  { type: "c", value: new THREE.Color( ).setHex( 0xFFFFFF )},
-      exp:{ type: "f", value : 0.8 },
-      offset:{ type: "f", value : 40 } //高さ基準点
+      topColor:  { type: "c", value: new THREE.Color( ).setHex( skydome.topColor  ) },
+      bottomColor:  { type: "c", value: new THREE.Color( ).setHex( skydome.bottomColor )},
+      exp:{ type: "f", value : skydome.exp  },
+      offset:{ type: "f", value :skydome.offset } //高さ基準点
     };
     //材質オブジェクトの宣言と生成
     var material = new THREE.ShaderMaterial( {
@@ -150,6 +167,8 @@ if (false) {
     //スカイドームの生成
     var skydome = new THREE.Mesh( geometry, material);
     scene.add( skydome );
+  } else {
+
   }
 
 /*
