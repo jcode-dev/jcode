@@ -18,14 +18,14 @@ JCODE.three.blocks = {
       [ "はこ", "box" ]
     ] ,
     code: function(operator, text) {
-      return "var " + operator + " = new JCODE.obj(" + text + ");\n";
+      return "var " + operator + " = new JCODE.object3d(" + text + ");\n";
     }
   },
   createNew: {
     msg: "3Dオブジェクト %1 は %2", 
-    msg2: "var %1 = new JCODE.obj( %2 );", 
+    msg2: "var %1 = new JCODE.object3d( %2 );", 
     code: function(operator, text) {
-      return "var " + operator + " = new JCODE.obj(" + text + ");\n";
+      return "var " + operator + " = new JCODE.object3d(" + text + ");\n";
     }
   },
   moveForward: {
@@ -94,10 +94,10 @@ JCODE.three.toolbox = function(workspace) {
 
 
 
-JCODE.obj = function(shape){
+JCODE.object3d = function(shape){
   this.outer = {};
-  JCODE.objects.push(this);
-  this.step = 0;
+  //JCODE.object3dects.push(this);
+  //this.step = 0;
   this.promise = Promise.resolve();
 
   if ( shape ) {
@@ -106,7 +106,7 @@ JCODE.obj = function(shape){
   return this;
 };
 
-JCODE.obj.prototype.loader = function( shape ){
+JCODE.object3d.prototype.loader = function( shape ){
   var shape = shape || 'sphere';
 
   switch(shape) {
@@ -131,7 +131,7 @@ JCODE.obj.prototype.loader = function( shape ){
       break;
     case 'pin':
     default:
-      mesh = JCODE.obj.loadJson();
+      mesh = JCODE.object3d.loadJson();
       break;
     }
     mesh.castShadow = true;
@@ -160,7 +160,7 @@ JCODE.obj.prototype.loader = function( shape ){
     return this;
 }
 
-JCODE.obj.loadJson = function() {
+JCODE.object3d.loadJson = function() {
   var jsonobj = 
 
   {
@@ -291,9 +291,9 @@ JCODE.obj.loadJson = function() {
 }
 
 /*
- *  JCODE.obj.wait(sec)  オブジェクトの操作を sec 秒待つ
+ *  JCODE.object3d.wait(sec)  オブジェクトの操作を sec 秒待つ
  */
-JCODE.obj.prototype.wait = function (sec) {
+JCODE.object3d.prototype.wait = function (sec) {
   console.log("wait");
   this.promise = this.promise.then(
     function () {
@@ -307,7 +307,7 @@ JCODE.obj.prototype.wait = function (sec) {
   );
 }
 
-JCODE.obj.prototype.moveForward = function (d) {
+JCODE.object3d.prototype.moveForward = function (d) {
   var mesh = this.outer;
   this.promise = this.promise.then(
     function () {
@@ -338,7 +338,7 @@ JCODE.obj.prototype.moveForward = function (d) {
   );
 }
 
-JCODE.obj.prototype.turnRight = function (d) {
+JCODE.object3d.prototype.turnRight = function (d) {
   var outer = this.outer;
   this.promise = this.promise.then(
     function () {
@@ -374,7 +374,7 @@ JCODE.obj.prototype.turnRight = function (d) {
     }
   );
 }
-JCODE.obj.prototype.lookUpward = function (d) {
+JCODE.object3d.prototype.lookUpward = function (d) {
   var outer = this.outer;
   this.promise = this.promise.then(
     function () {
@@ -407,19 +407,19 @@ JCODE.obj.prototype.lookUpward = function (d) {
   );
 }
 
-JCODE.obj.prototype.update = function () {
+JCODE.object3d.prototype.update = function () {
   this.step += 0.025;
   this.outer.rotation.y = (Math.cos(this.step)) /2;//- Math.PI / 4;
   return;
 }
-JCODE.obj.prototype.update2 = function () {
+JCODE.object3d.prototype.update2 = function () {
   // rotate the cube around its axes
   this.outer.rotation.x += 0.002;
   this.outer.rotation.y += 0.002;
   this.outer.rotation.z += 0.002;
   return;
 }
-JCODE.obj.prototype.update1 = function () {
+JCODE.object3d.prototype.update1 = function () {
   // bounce the sphere up and down
   this.step += 0.04;
   this.outer.position.x = 20 + ( 10 * (Math.cos(this.step)));

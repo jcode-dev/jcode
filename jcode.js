@@ -5,7 +5,7 @@ var JCODE = {};
 
 JCODE.init = function() {
 
-  JCODE.objects = [];
+  //JCODE.objects = [];
   
   var width = 400; //window.innerWidth;
   var height = 300; //window.innerHeight;
@@ -213,9 +213,9 @@ scene.add( textBoardObject.cleatePlaneObject() );
     controls.update();
     TWEEN.update();
 
-    for (var i=0; i < JCODE.objects.length; i++) {
+    //for (var i=0; i < JCODE.objects.length; i++) {
       //JCODE.objects[i].update();
-    }
+   // }
 
     /*
     step++;
