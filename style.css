@@ -174,7 +174,7 @@ button {
   text-decoration: none;
 }
 #WebGL-output {
-  border: 1px solid #c6c6c6;
+  border: 0px solid #c6c6c6;
   margin: 0px;
 }
 #instruction {

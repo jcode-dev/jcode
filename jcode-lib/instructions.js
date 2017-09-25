@@ -44,13 +44,6 @@ Blockly.JavaScript['JCODE_instruction_new'] = function(block) {
     return [code, Blockly.JavaScript.ORDER_MEMBER];
 };
 
-JCODE.instruction = function(html) {
-    this.$inst = $('<div>').appendTo('#JCODE-instruction');
-    if (html) {
-        this.$inst.html(html);
-    }
-    return this;
-} 
 // インストラクションに文を追加
 Blockly.Blocks['JCODE_instruction_html'] = {
     init: function() {
@@ -75,9 +68,6 @@ Blockly.JavaScript['JCODE_instruction_html'] = function(block) {
     return code + ";\n";
 };
 
-JCODE.instruction.prototype.html = function(html) {
-    this.$inst.html(html);  
-}
 // インストラクションのボタンに関数を割当
 Blockly.Blocks['JCODE_instruction_click'] = {
     init: function() {
@@ -105,6 +95,22 @@ Blockly.JavaScript['JCODE_instruction_click'] = function(block) {
     var code = obj + '.click(' + text + ')';
     return code + ";\n";
 };
+
+JCODE.instruction = function(html) {
+    this.$inst = $('#JCODE-instruction');
+    if (html) {
+        $('<p>').html(html).appendTo(this.$inst);
+    }
+    return this;
+} 
+
+JCODE.instruction.prototype.add = function(html) {
+    console.log(html);
+    $('<p>').html(html).appendTo(this.$inst);
+    //this.$inst.html(html);  
+}
+
+
 JCODE.instruction.prototype.click = function( f ) {
     $(this.$inst).find("button").click(function(e) {
        f(e);

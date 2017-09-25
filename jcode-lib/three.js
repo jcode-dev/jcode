@@ -28,21 +28,45 @@ JCODE.three.blocks = {
       return "var " + operator + " = new JCODE.object3d(" + text + ");\n";
     }
   },
+  setColor: {
+    msg: "%1 の色は %2", 
+    code: function(operator, text) {
+      return operator + ".setColor(" + text + ");\n";
+    }
+  },
+  setScale: {
+    msg: "%1 の大きさは %2 倍", 
+    code: function(operator, text) {
+      return operator + ".setScale(" + text + ");\n";
+    }
+  },
+  setSpeed: {
+    msg: "%1 の速さは %2 倍", 
+    code: function(operator, text) {
+      return operator + ".setSpeed(" + text + ");\n";
+    }
+  },
+  removeAll: {
+    msg: "%1 の仲間を全部消す %2 ", 
+    code: function(operator, text) {
+      return "JCODE.removeAllFromPlayground();\n";
+    }
+  },
   moveForward: {
-    msg: "%1 が %2 センチ 前にうごく ",
+    msg: "%1 が前にうごく %2 センチ",
     msg2: "%1.moveForward( %2 );",
     code: function(operator, text) {
       return operator + ".moveForward(" + text + ");\n";
     }
   },
   turnRight: {
-    msg: "%1 が %2 度 右にまがる ",
+    msg: "%1 が右にまがる %2",
     code: function(operator, text) {
       return operator + ".turnRight(" + text + ");\n";
     }
   },
   lookUpward: {
-    msg: "%1 が %2 度 上を向く ",
+    msg: "%1 が上を向く %2",
     code: function(operator, text) {
       return operator + ".lookUpward(" + text + ");\n";
     }
@@ -57,7 +81,7 @@ JCODE.three.blocks = {
     msg: "シーンに %1 を追加",
     pno: 0, 
     code: function(operator, text) {
-      return "JCODE.scene.add (" + operator + ");\n";
+      return "JCODE.playground.add (" + operator + ");\n";
     }
   }
 };
@@ -96,9 +120,8 @@ JCODE.three.toolbox = function(workspace) {
 
 JCODE.object3d = function(shape){
   this.outer = {};
-  //JCODE.object3dects.push(this);
-  //this.step = 0;
   this.promise = Promise.resolve();
+  this.speed = 1;
 
   if ( shape ) {
       this.loader(shape);
@@ -106,34 +129,58 @@ JCODE.object3d = function(shape){
   return this;
 };
 
+JCODE.removeAllFromPlayground = function() {
+  JCODE.scene.remove(JCODE.playground);
+  JCODE.playground = new THREE.Group();
+  JCODE.scene.add(JCODE.playground);
+}
+
+JCODE.object3d.prototype.setColor = function( color ) {
+  if (this.coloredMesh && this.coloredMesh.material) {
+    this.coloredMesh.material.color = new THREE.Color(color);
+  } else {
+    console.log("Can't set mesh.material.color !")
+  }
+}
+JCODE.object3d.prototype.setSpeed = function( speed ) {
+  this.speed = speed;
+}
+
+JCODE.object3d.prototype.setScale = function( s ) {
+  if (this.outer) {
+    this.outer.scale.set( s, s, s );
+  } else {
+    console.log("Can't set scale !")
+  }
+}
+
 JCODE.object3d.prototype.loader = function( shape ){
   var shape = shape || 'sphere';
-
+  var userData = {};
+  
   switch(shape) {
     // create a cube
     case 'box':
       var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
-      var cubeMaterial = new THREE.MeshLambertMaterial({color: 0xff0000});
-      var mesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
-       // position the cube
-       //mesh.position.x = -4;
-       mesh.position.y = 2;
-       //mesh.position.z = 10;
+      var material = new THREE.MeshLambertMaterial({color: 0xff0000});
+      var mesh = new THREE.Mesh(cubeGeometry, material);
+      mesh.position.y = 2;
+      this.coloredMesh = mesh;
       break;
     case 'sphere':
       var sphereGeometry = new THREE.SphereGeometry(2, 20, 20);
-      var sphereMaterial = new THREE.MeshLambertMaterial({color: 0x7777ff});
-      mesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
-      // position the sphere
-      //mesh.position.x = 20;
+      var material = new THREE.MeshLambertMaterial({color: 0x7777ff});
+      mesh = new THREE.Mesh(sphereGeometry, material);
       mesh.position.y = 2;
-      //mesh.position.z = 2;
+      this.coloredMesh = mesh;
       break;
     case 'pin':
     default:
       mesh = JCODE.object3d.loadJson();
+      this.coloredMesh = mesh.getObjectByName("PinCylinder");
       break;
     }
+    this.mesh = mesh;
     mesh.castShadow = true;
 
     var dir = new THREE.Vector3( 0, 0, 5 );
@@ -151,11 +198,12 @@ JCODE.object3d.prototype.loader = function( shape ){
     var outer = new THREE.Group();
     outer.add(inner);
 
-    JCODE.scene.add(outer);
-    outer.userData = {};
-    outer.userData.inner =inner;
-    outer.userData.axis = axis;
-    outer.userData.arrow = arrow;
+    JCODE.playground.add(outer);
+
+    userData.inner =inner;
+    userData.axis = axis;
+    userData.arrow = arrow;
+    outer.userData = userData;
     this.outer = outer;
     return this;
 }
@@ -258,7 +306,7 @@ JCODE.object3d.loadJson = function() {
         {
           "uuid": "BF15D2A5-E1AD-40A4-B80D-E03496BDA7C3",
           "type": "Mesh",
-          "name": "Cylinder 2",
+          "name": "PinCylinder",
           "castShadow": true,
           "receiveShadow": true,
           "matrix": [2,0,0,0,0,3,0,0,0,0,2,0,0,2,0,1],
@@ -309,6 +357,7 @@ JCODE.object3d.prototype.wait = function (sec) {
 
 JCODE.object3d.prototype.moveForward = function (d) {
   var mesh = this.outer;
+  var delta = d * 100/this.speed;
   this.promise = this.promise.then(
     function () {
       mesh.userData.arrow.visible = true;  
@@ -316,7 +365,7 @@ JCODE.object3d.prototype.moveForward = function (d) {
         setTimeout(function(){
           mesh.userData.arrow.visible = false;  
           resolve();
-        },1500);
+        }, delta);
         var coords = mesh.position.clone();
         var direction = mesh.position.clone();
         var forward = new THREE.Vector4(0, 0, 1, 0);
@@ -324,7 +373,7 @@ JCODE.object3d.prototype.moveForward = function (d) {
         direction.addVectors( coords, forward.multiplyScalar( d ) );
 
         var tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
-        .to( direction , 1200) // Move to (300, 200) in 1 second.
+        .to( direction , delta * 0.9) // Move to (300, 200) in 1 second.
         .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
         .onUpdate(function() { // Called after tween.js updates 'coords'.
             // Move 'box' to the position described by 'coords' with a CSS translation.
@@ -340,6 +389,7 @@ JCODE.object3d.prototype.moveForward = function (d) {
 
 JCODE.object3d.prototype.turnRight = function (d) {
   var outer = this.outer;
+  var delta = d * 1000/360/this.speed;
   this.promise = this.promise.then(
     function () {
       outer.userData.arrow.visible = true;  
@@ -349,7 +399,7 @@ JCODE.object3d.prototype.turnRight = function (d) {
           outer.userData.arrow.visible = false;  
           //outer.userData.axis.visible = false;  
           resolve();
-        },1400);
+        }, delta);
 
         //全体を右に曲げる
         var coords2 = outer.quaternion.clone();
@@ -363,7 +413,7 @@ JCODE.object3d.prototype.turnRight = function (d) {
         var goal = outer.userData.inner.rotation.clone();
         start.y = goal.y + (Math.PI * d / 180);
         var tween = new TWEEN.Tween(start) // Create a new tween that modifies 'coords'.
-        .to( goal , 1200) // Move to (300, 200) in 1 second.
+        .to( goal , delta*0.9) // Move to (300, 200) in 1 second.
         .easing(TWEEN.Easing.Linear.None) // Use an easing function to make the animation smooth.
         .onUpdate(function() { // Called after tween.js updates 'coords'.
             // Move 'box' to the position described by 'coords' with a CSS translation.
@@ -376,6 +426,7 @@ JCODE.object3d.prototype.turnRight = function (d) {
 }
 JCODE.object3d.prototype.lookUpward = function (d) {
   var outer = this.outer;
+  var delta = d * 1000/360/this.speed;
   this.promise = this.promise.then(
     function () {
       outer.userData.arrow.visible = true;  
@@ -385,7 +436,7 @@ JCODE.object3d.prototype.lookUpward = function (d) {
           outer.userData.arrow.visible = false;  
           outer.userData.axis.visible = false;  
           resolve();
-        },1400);
+        }, delta);
 
         //mesh.useQuaternion = true;
         var coords = outer.quaternion.clone();
@@ -395,7 +446,7 @@ JCODE.object3d.prototype.lookUpward = function (d) {
         var direction = new THREE.Quaternion();
         direction.setFromAxisAngle(axis, Math.PI * -d / 180).multiply(coords);
         var tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
-        .to( direction , 1200) // Move to (300, 200) in 1 second.
+        .to( direction , delta*0.9) // Move to (300, 200) in 1 second.
         .easing(TWEEN.Easing.Linear.None) // Use an easing function to make the animation smooth.
         .onUpdate(function() { // Called after tween.js updates 'coords'.
             // Move 'box' to the position described by 'coords' with a CSS translation.

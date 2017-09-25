@@ -86,7 +86,7 @@ JCODE.createBlock = function(obj, prefix, funcname, color) {
     Blockly.JavaScript.ORDER_MEMBER) || '\'\'';
     var operator = this.getFieldValue('VAR');
     var subString = "substr";
-    console.log(text);
+    //console.log(text);
     var code = obj[funcname].code(operator, text);
     return code ;
   };

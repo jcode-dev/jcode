@@ -410,8 +410,8 @@ Code.initBlockly = function(toolboxText) {
       });
 
   // カスタムツールボックス
-  Code.workspace.registerToolboxCategoryCallback(
-    'JCODE_OBJECT', JCODE.jcodeObjectCallback);
+  //Code.workspace.registerToolboxCategoryCallback(
+  //  'JCODE_OBJECT', JCODE.jcodeObjectCallback);
   Code.workspace.registerToolboxCategoryCallback(
     'JCODE_THREE', JCODE.three.toolbox);
   Code.workspace.registerToolboxCategoryCallback(
@@ -433,7 +433,10 @@ Code.initBlockly = function(toolboxText) {
   Code.tabClick(Code.selected);
 
   Code.bindClick('trashButton',
-      function() {Code.discard(); Code.renderContent();});
+  //    function() {Code.discard(); Code.renderContent();});
+  function() {JCODE.removeAllFromPlayground()});
+
+
   Code.bindClick('runButton', Code.runJS);
   // Disable the link button if page isn't backed by App Engine storage.
   var linkButton = document.getElementById('linkButton');

@@ -5,29 +5,42 @@ var JCODE = {};
 
 JCODE.init = function() {
 
-  //JCODE.objects = [];
+  var width;
+  var height;
+  var ratio;
+  function resize() {
+    width = $("#top-component").innerWidth();
+    height = $("#top-component").innerHeight();
+    ratio = screen.width / screen.height;
+    if (width > 640) {
+      height = height - 7;
+      width = height * screen.width / screen.height;
+      $("#left-component").width(width);
+      var width2 = $("#top-component").innerWidth() - width;
+      if (width2 < 120) width2 = $("#top-component").innerWidth();
+      $("#right-component").width(width2 - 20);
+    }
+  }
+  resize();
   
-  var width = 400; //window.innerWidth;
-  var height = 300; //window.innerHeight;
-
   // create a scene, that will hold all our elements such as objects, cameras and lights.
   var scene = new THREE.Scene();
-  JCODE.scene = scene; // save global
-  JCODE.DomElement = document.getElementById("WebGL-output");
+  JCODE.scene = scene;
+  JCODE.playground = new THREE.Group(); // save global for user play ground;
+  scene.add(JCODE.playground);
 
   // create a camera, which defines where we're looking at.
-  var camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+  var camera = new THREE.PerspectiveCamera(45, ratio, 0.1, 1000);
 
   // create a render and set the size
   var renderer = new THREE.WebGLRenderer();
   renderer.setClearColor(new THREE.Color(0xEEEEEE));
   renderer.setSize(width, height);
   renderer.shadowMap.enabled = true;
-
+  JCODE.DomElement = document.getElementById("WebGL-output");
+  
   var onresize = function(e) {
-    // container の調整
-    height = $('#top-component').height() - 38;
-    width = height / 300 * 400;
+    resize();
     renderer.setSize(width, height);
   };
   window.addEventListener('resize', onresize, false);
