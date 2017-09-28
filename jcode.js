@@ -12,14 +12,15 @@ JCODE.init = function() {
     width = $("#top-component").innerWidth();
     height = $("#top-component").innerHeight();
     ratio = screen.width / screen.height;
-    if (width > 640) {
-      height = height - 7;
+    //if (width > 640) {
+      height = height - 10;
       width = height * screen.width / screen.height;
       $("#left-component").width(width);
       var width2 = $("#top-component").innerWidth() - width;
-      if (width2 < 120) width2 = $("#top-component").innerWidth();
-      $("#right-component").width(width2 - 20);
-    }
+      if (width2 < 120) {width2 = $("#top-component").innerWidth();}
+      $("#right-component").width(width2 - 24);
+      $("#right-component").height(height-8);
+    //}
   }
   resize();
   
@@ -58,25 +59,23 @@ if (true){
   // 地面
   var floor = new THREE.Group();
   var planeGeometry = new THREE.PlaneGeometry(10, 10);
-  var planeMaterial1 = new THREE.MeshPhongMaterial({color: 0xFFFFFF, opacity:0.8, transparent:true});
-  var plane1 = new THREE.Mesh(planeGeometry, planeMaterial1);
-  plane1.receiveShadow = true;
-  // rotate and position the plane
-  plane1.rotation.x = -0.5 * Math.PI;
-  plane1.position.x = 0;
-  plane1.position.y = 0;
-  plane1.position.z = 0;
-  var planeMaterial2 = new THREE.MeshPhongMaterial({color: 0x303030, opacity:0.8, transparent:true});
-  var plane2 = new THREE.Mesh(planeGeometry, planeMaterial2);
-  plane2.receiveShadow = true;
-  // rotate and position the plane
-  plane2.rotation.x = -0.5 * Math.PI;
-  plane2.position.x = 10;
-  plane2.position.y = 0;
-  plane2.position.z = 0;
+  function newmesh (color) {
+    var planeMaterial1 = new THREE.MeshPhongMaterial({color: color, opacity:0.8, transparent:true});
+    var plane1 = new THREE.Mesh(planeGeometry, planeMaterial1);
+    plane1.receiveShadow = true;
+    // rotate and position the plane
+    plane1.rotation.x = -0.5 * Math.PI;
+    plane1.position.x = 0;
+    plane1.position.y = 0;
+    plane1.position.z = 0;
+    return plane1;
+  }
+  var plane1 = newmesh(0xFFFFFF); // 白
+  var plane2 = newmesh(0x303030); // 黒
+  var plane3 = newmesh(0x000080); // 青
   for (var x=0; x<10; x++) {
     for (var z=0; z<10; z++) {
-      var p = (( x + z) % 2) ? plane1.clone() : plane2.clone();
+      var p = (x == 5 && z ==5) ? plane3.clone() : (( x + z) % 2) ? plane1.clone() : plane2.clone();
       p.position.z = z * 10 - 50;
       p.position.x = x * 10 - 50;
       floor.add(p);

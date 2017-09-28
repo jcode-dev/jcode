@@ -77,6 +77,13 @@ JCODE.three.blocks = {
       return "var " + operator + " = new THREE.AxisHelper(" + text + ");\n";
     }
   },
+  clearGroup: {
+    msg: "画面をクリアする %1", 
+    pno: 0, 
+    code: function(operator) {
+      return "JCODE.clearGroup ('"+operator+"');\n";
+    }
+  },
   scene_add: {
     msg: "シーンに %1 を追加",
     pno: 0, 
@@ -130,9 +137,15 @@ JCODE.object3d = function(shape){
 };
 
 JCODE.removeAllFromPlayground = function() {
-  JCODE.scene.remove(JCODE.playground);
-  JCODE.playground = new THREE.Group();
-  JCODE.scene.add(JCODE.playground);
+  JCODE.clearGroup("playground");
+}
+
+JCODE.clearGroup = function(group) {
+  if (JCODE[group]) {
+    JCODE.scene.remove(JCODE[group]);
+  }
+  JCODE[group] = new THREE.Group();
+  JCODE.scene.add(JCODE[group]);
 }
 
 JCODE.object3d.prototype.setColor = function( color ) {
@@ -140,6 +153,14 @@ JCODE.object3d.prototype.setColor = function( color ) {
     this.coloredMesh.material.color = new THREE.Color(color);
   } else {
     console.log("Can't set mesh.material.color !")
+  }
+}
+JCODE.object3d.prototype.setOpacity = function( opacity ) {
+  if (this.coloredMesh && this.coloredMesh.material) {
+    this.coloredMesh.material.transparent = true;
+    this.coloredMesh.material.opacity = opacity;
+  } else {
+    console.log("Can't set mesh.material.opacity !")
   }
 }
 JCODE.object3d.prototype.setSpeed = function( speed ) {
@@ -357,7 +378,7 @@ JCODE.object3d.prototype.wait = function (sec) {
 
 JCODE.object3d.prototype.moveForward = function (d) {
   var mesh = this.outer;
-  var delta = d * 100/this.speed;
+  var msec = Math.abs(d * 100/this.speed);
   this.promise = this.promise.then(
     function () {
       mesh.userData.arrow.visible = true;  
@@ -365,7 +386,7 @@ JCODE.object3d.prototype.moveForward = function (d) {
         setTimeout(function(){
           mesh.userData.arrow.visible = false;  
           resolve();
-        }, delta);
+        }, msec);
         var coords = mesh.position.clone();
         var direction = mesh.position.clone();
         var forward = new THREE.Vector4(0, 0, 1, 0);
@@ -373,7 +394,7 @@ JCODE.object3d.prototype.moveForward = function (d) {
         direction.addVectors( coords, forward.multiplyScalar( d ) );
 
         var tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
-        .to( direction , delta * 0.9) // Move to (300, 200) in 1 second.
+        .to( direction , msec * 0.9) // Move to (300, 200) in 1 second.
         .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
         .onUpdate(function() { // Called after tween.js updates 'coords'.
             // Move 'box' to the position described by 'coords' with a CSS translation.

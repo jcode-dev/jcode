@@ -189,6 +189,7 @@ Code.changeLanguage = function() {
  * @param {!Function} func Event handler to bind.
  */
 Code.bindClick = function(el, func) {
+  console.log(el);
   if (typeof el == 'string') {
     el = document.getElementById(el);
   }
@@ -422,7 +423,7 @@ Code.initBlockly = function(toolboxText) {
   // and the infinite loop detection function.
   Blockly.JavaScript.addReservedWords('code,timeouts,checkTimeout');
 
-  Code.loadBlocks('');
+  //Code.loadBlocks('');
   //BlocklyStorage.restoreBlocks();
 
   if ('BlocklyStorage' in window) {
