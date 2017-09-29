@@ -22,8 +22,9 @@ JCODE.three.blocks = {
     }
   },
   createNew: {
-    msg: "3Dオブジェクト %1 は %2", 
+    msg: "%1 は新しい %2", 
     msg2: "var %1 = new JCODE.object3d( %2 );", 
+    colour: 94,
     code: function(operator, text) {
       return "var " + operator + " = new JCODE.object3d(" + text + ");\n";
     }
@@ -44,12 +45,6 @@ JCODE.three.blocks = {
     msg: "%1 の速さは %2 倍", 
     code: function(operator, text) {
       return operator + ".setSpeed(" + text + ");\n";
-    }
-  },
-  removeAll: {
-    msg: "%1 の仲間を全部消す %2 ", 
-    code: function(operator, text) {
-      return "JCODE.removeAllFromPlayground();\n";
     }
   },
   moveForward: {
@@ -126,22 +121,28 @@ JCODE.three.toolbox = function(workspace) {
 
 
 JCODE.object3d = function(shape){
+//console.log(shape);
+  this.shape = shape;
+  if (typeof shape == "object") {
+    this.shape = shape.shape;
+    this.group = shape.group;
+  }
+
   this.outer = {};
-  this.promise = Promise.resolve();
+  //this.promise = Promise.resolve();
   this.speed = 1;
 
-  if ( shape ) {
-      this.loader(shape);
+  if ( this.shape ) {
+      this.loader(this.shape, this.group);
   }
+  this.outer.userData.promise = Promise.resolve(); // オブジェクト毎のpromise
   return this;
 };
 
-JCODE.removeAllFromPlayground = function() {
-  JCODE.clearGroup("playground");
-}
-
 JCODE.clearGroup = function(group) {
-  if (JCODE[group]) {
+  if (!JCODE[group]) {
+    ;
+  } else {
     JCODE.scene.remove(JCODE[group]);
   }
   JCODE[group] = new THREE.Group();
@@ -175,8 +176,9 @@ JCODE.object3d.prototype.setScale = function( s ) {
   }
 }
 
-JCODE.object3d.prototype.loader = function( shape ){
+JCODE.object3d.prototype.loader = function( shape, group ){
   var shape = shape || 'sphere';
+  var group = group || 'playground';
   var userData = {};
   
   switch(shape) {
@@ -219,7 +221,7 @@ JCODE.object3d.prototype.loader = function( shape ){
     var outer = new THREE.Group();
     outer.add(inner);
 
-    JCODE.playground.add(outer);
+    JCODE[group].add(outer);
 
     userData.inner =inner;
     userData.axis = axis;
@@ -364,7 +366,8 @@ JCODE.object3d.loadJson = function() {
  */
 JCODE.object3d.prototype.wait = function (sec) {
   console.log("wait");
-  this.promise = this.promise.then(
+  this.outer.userData.promise = this.outer.userData.promise.then(
+  //this.promise = this.promise.then(
     function () {
       return new Promise(function (resolve, reject) {
         setTimeout(function(){
@@ -378,10 +381,12 @@ JCODE.object3d.prototype.wait = function (sec) {
 
 JCODE.object3d.prototype.moveForward = function (d) {
   var mesh = this.outer;
-  var msec = Math.abs(d * 100/this.speed);
-  this.promise = this.promise.then(
+  var msec = Math.max(100, Math.abs(d * 100/this.speed));
+  var highlightBlockId = JCODE.highlightBlockId;
+  this.outer.userData.promise = this.outer.userData.promise.then(
     function () {
-      mesh.userData.arrow.visible = true;  
+      mesh.userData.arrow.visible = true;
+      Code.workspace.highlightBlock(highlightBlockId);
       return new Promise(function (resolve, reject) {
         setTimeout(function(){
           mesh.userData.arrow.visible = false;  
@@ -403,25 +408,25 @@ JCODE.object3d.prototype.moveForward = function (d) {
             mesh.position.z = coords.z;
           })
         .start(); // Start the tween immediately.
-      })
+      });
     }
   );
 }
 
 JCODE.object3d.prototype.turnRight = function (d) {
   var outer = this.outer;
-  var delta = d * 1000/360/this.speed;
-  this.promise = this.promise.then(
+  var msec = Math.max(100, Math.abs(d * 1000/360/this.speed));
+  var highlightBlockId = JCODE.highlightBlockId;
+  this.outer.userData.promise = this.outer.userData.promise.then(
     function () {
       outer.userData.arrow.visible = true;  
-      //outer.userData.axis.visible = true;  
+      Code.workspace.highlightBlock(highlightBlockId);
       return new Promise(function (resolve, reject) {
         setTimeout(function(){
           outer.userData.arrow.visible = false;  
-          //outer.userData.axis.visible = false;  
           resolve();
-        }, delta);
-
+        }, msec);
+        
         //全体を右に曲げる
         var coords2 = outer.quaternion.clone();
         var axis = new THREE.Vector4(0, 1, 0, 0);
@@ -434,7 +439,7 @@ JCODE.object3d.prototype.turnRight = function (d) {
         var goal = outer.userData.inner.rotation.clone();
         start.y = goal.y + (Math.PI * d / 180);
         var tween = new TWEEN.Tween(start) // Create a new tween that modifies 'coords'.
-        .to( goal , delta*0.9) // Move to (300, 200) in 1 second.
+        .to( goal , msec*0.9) // Move to (300, 200) in 1 second.
         .easing(TWEEN.Easing.Linear.None) // Use an easing function to make the animation smooth.
         .onUpdate(function() { // Called after tween.js updates 'coords'.
             // Move 'box' to the position described by 'coords' with a CSS translation.
@@ -447,31 +452,38 @@ JCODE.object3d.prototype.turnRight = function (d) {
 }
 JCODE.object3d.prototype.lookUpward = function (d) {
   var outer = this.outer;
-  var delta = d * 1000/360/this.speed;
-  this.promise = this.promise.then(
+  var msec = Math.max(100, Math.abs(d * 1000/360/this.speed));
+  var highlightBlockId = JCODE.highlightBlockId;
+  this.outer.userData.promise = this.outer.userData.promise.then(
+    //this.promise = this.promise.then(
     function () {
       outer.userData.arrow.visible = true;  
       outer.userData.axis.visible = true;  
+      Code.workspace.highlightBlock(highlightBlockId);
       return new Promise(function (resolve, reject) {
         setTimeout(function(){
           outer.userData.arrow.visible = false;  
           outer.userData.axis.visible = false;  
           resolve();
-        }, delta);
+        }, msec);
 
-        //mesh.useQuaternion = true;
-        var coords = outer.quaternion.clone();
-        //var direction = mesh.rotation.clone();
+        //全体を上に曲げる
+        var coords2 = outer.quaternion.clone();
         var axis = new THREE.Vector4(1, 0, 0, 0);
         axis.applyMatrix4(outer.matrix).normalize();
         var direction = new THREE.Quaternion();
-        direction.setFromAxisAngle(axis, Math.PI * -d / 180).multiply(coords);
-        var tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
-        .to( direction , delta*0.9) // Move to (300, 200) in 1 second.
+        direction.setFromAxisAngle(axis, Math.PI * -d / 180).multiply(coords2);
+        outer.quaternion.copy(direction);
+        //中を左にまげて元に戻すアニメーション
+        var start = outer.userData.inner.rotation.clone();
+        var goal = outer.userData.inner.rotation.clone();
+        start.x = goal.x + (Math.PI * d / 180);
+        var tween = new TWEEN.Tween(start) // Create a new tween that modifies 'coords'.
+        .to( goal , msec*0.9) // Move to (300, 200) in 1 second.
         .easing(TWEEN.Easing.Linear.None) // Use an easing function to make the animation smooth.
         .onUpdate(function() { // Called after tween.js updates 'coords'.
             // Move 'box' to the position described by 'coords' with a CSS translation.
-            outer.quaternion.copy(coords);
+            outer.userData.inner.rotation.x = start.x;
           })
         .start(); // Start the tween immediately.
       })

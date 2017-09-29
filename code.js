@@ -434,8 +434,8 @@ Code.initBlockly = function(toolboxText) {
   Code.tabClick(Code.selected);
 
   Code.bindClick('trashButton',
-  //    function() {Code.discard(); Code.renderContent();});
-  function() {JCODE.removeAllFromPlayground()});
+      function() {Code.discard(); Code.renderContent();});
+  //function() {JCODE.removeAllFromPlayground()});
 
 
   Code.bindClick('runButton', Code.runJS);
