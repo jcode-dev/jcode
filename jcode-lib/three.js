@@ -121,12 +121,20 @@ JCODE.three.toolbox = function(workspace) {
 
 
 JCODE.object3d = function(shape){
-//console.log(shape);
+  var config = {};
   this.shape = shape;
   if (typeof shape == "object") {
     this.shape = shape.shape;
     this.group = shape.group;
+    config = shape;
+  } else if (typeof shape == "string") {
+    config.shape = shape;
   }
+  var group = config.group || "playground";
+  var nconfig = {shape:"sphere", color:'#7777ff', speed:1, scale:1, opacity:1, arrow:"during"}; 
+  Object.assign(nconfig, JCODE[group].userData.config, config);
+
+  console.log("config:", nconfig);
 
   this.outer = {};
   //this.promise = Promise.resolve();
@@ -136,17 +144,23 @@ JCODE.object3d = function(shape){
       this.loader(this.shape, this.group);
   }
   this.outer.userData.promise = Promise.resolve(); // オブジェクト毎のpromise
+  this.setColor(nconfig.color);
+  this.setSpeed(nconfig.speed);
+  this.setOpacity(nconfig.opacity);
   return this;
 };
 
-JCODE.clearGroup = function(group) {
+JCODE.clearGroup = function(group, config) {
+  var nconfig;
   if (!JCODE[group]) {
-    ;
+    nconfig = config || {};
   } else {
+    nconfig = config || JCODE[group].userData.config;
     JCODE.scene.remove(JCODE[group]);
   }
   JCODE[group] = new THREE.Group();
   JCODE.scene.add(JCODE[group]);
+  JCODE[group].userData.config = nconfig;  
 }
 
 JCODE.object3d.prototype.setColor = function( color ) {
@@ -185,7 +199,7 @@ JCODE.object3d.prototype.loader = function( shape, group ){
     // create a cube
     case 'box':
       var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
-      var material = new THREE.MeshLambertMaterial({color: 0xff0000});
+      var material = new THREE.MeshLambertMaterial({color: 0x7777ff});
       var mesh = new THREE.Mesh(cubeGeometry, material);
       mesh.position.y = 2;
       this.coloredMesh = mesh;
