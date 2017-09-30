@@ -122,10 +122,10 @@ JCODE.three.toolbox = function(workspace) {
 
 JCODE.object3d = function(shape){
   var config = {};
-  this.shape = shape;
+  //this.shape = shape;
   if (typeof shape == "object") {
-    this.shape = shape.shape;
-    this.group = shape.group;
+    //this.shape = shape.shape;
+    //this.group = shape.group;
     config = shape;
   } else if (typeof shape == "string") {
     config.shape = shape;
@@ -134,15 +134,12 @@ JCODE.object3d = function(shape){
   var nconfig = {shape:"sphere", color:'#7777ff', speed:1, scale:1, opacity:1, arrow:"during"}; 
   Object.assign(nconfig, JCODE[group].userData.config, config);
 
-  console.log("config:", nconfig);
-
   this.outer = {};
   //this.promise = Promise.resolve();
-  this.speed = 1;
+  //this.speed = 1;
 
-  if ( this.shape ) {
-      this.loader(this.shape, this.group);
-  }
+  this.loader(nconfig);
+
   this.outer.userData.promise = Promise.resolve(); // オブジェクト毎のpromise
   this.setColor(nconfig.color);
   this.setSpeed(nconfig.speed);
@@ -190,9 +187,11 @@ JCODE.object3d.prototype.setScale = function( s ) {
   }
 }
 
-JCODE.object3d.prototype.loader = function( shape, group ){
-  var shape = shape || 'sphere';
-  var group = group || 'playground';
+JCODE.object3d.prototype.loader = function( config ){
+  console.log("config:", config);
+  
+  var shape = config.shape || 'sphere';
+  var group = config.group || 'playground';
   var userData = {};
   
   switch(shape) {
@@ -226,12 +225,17 @@ JCODE.object3d.prototype.loader = function( shape, group ){
     var hex = 0xffff00;
     var arrow = new THREE.ArrowHelper( dir, origin, length, hex, 2, 1 );
     arrow.visible=false;    
+    var arrow2 = new THREE.ArrowHelper( dir, origin, length, hex, 2, 1 );
+    arrow2.visible=true;    
     var axis = new THREE.AxisHelper(20);
     axis.visible=false;
     var inner = new THREE.Group();
     inner.add(mesh);
     inner.add(axis);
     inner.add(arrow);
+    if (config.arrow == "always") {
+      inner.add(arrow2);
+    }
     var outer = new THREE.Group();
     outer.add(inner);
 
