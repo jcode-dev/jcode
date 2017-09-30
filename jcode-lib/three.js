@@ -47,6 +47,12 @@ JCODE.three.blocks = {
       return operator + ".setSpeed(" + text + ");\n";
     }
   },
+  setTransparent: {
+    msg: "%1 の とうめいどは %2 (0〜100)", 
+    code: function(operator, text) {
+      return operator + ".setTransparent(" + text + ");\n";
+    }
+  },
   moveForward: {
     msg: "%1 が前にうごく %2 センチ",
     msg2: "%1.moveForward( %2 );",
@@ -175,6 +181,11 @@ JCODE.object3d.prototype.setOpacity = function( opacity ) {
     console.log("Can't set mesh.material.opacity !")
   }
 }
+JCODE.object3d.prototype.setTransparent = function( t ) {
+  var opacity = t ? 1 - (t / 100) : 1;
+  this.setOpacity(opacity);
+}
+
 JCODE.object3d.prototype.setSpeed = function( speed ) {
   this.speed = speed;
 }

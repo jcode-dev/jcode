@@ -374,7 +374,7 @@ Code.initBlockly = function(toolboxText) {
     // Make the 'Blocks' tab line up with the toolbox.
     if (Code.workspace && Code.workspace.toolbox_ && Code.workspace.toolbox_.width) {
       document.getElementById('tab_blocks').style.minWidth =
-          (Code.workspace.toolbox_.width - 38) + 'px';
+          (Code.workspace.toolbox_.width - 0) + 'px';
           // Account for the 19 pixel margin and on each side.
     }
   };
