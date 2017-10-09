@@ -5,24 +5,7 @@ var JCODE = {};
 
 JCODE.init = function() {
 
-  var width;
-  var height;
-  var ratio;
-  function resize() {
-    width = $("#top-component").innerWidth();
-    height = $("#top-component").innerHeight();
-    ratio = screen.width / screen.height;
-    //if (width > 640) {
-      height = height - 10;
-      width = height * screen.width / screen.height;
-      $("#left-component").width(width);
-      var width2 = $("#top-component").innerWidth() - width;
-      if (width2 < 120) {width2 = $("#top-component").innerWidth();}
-      $("#right-component").width(width2 - 24);
-      $("#right-component").height(height-8);
-    //}
-  }
-  resize();
+  JCODE.DomElement = document.getElementById("threejs-canvas");
   
   // create a scene, that will hold all our elements such as objects, cameras and lights.
   var scene = new THREE.Scene();
@@ -30,21 +13,29 @@ JCODE.init = function() {
   JCODE.playground = new THREE.Group(); // save global for user play ground;
   scene.add(JCODE.playground);
 
-  // create a camera, which defines where we're looking at.
-  var camera = new THREE.PerspectiveCamera(45, ratio, 0.1, 1000);
 
   // create a render and set the size
   var renderer = new THREE.WebGLRenderer();
   renderer.setClearColor(new THREE.Color(0xEEEEEE));
-  renderer.setSize(width, height);
+  //renderer.setSize(width, height);
   renderer.shadowMap.enabled = true;
-  JCODE.DomElement = document.getElementById("WebGL-output");
+
+  // create a camera, which defines where we're looking at.
+  var camera = new THREE.PerspectiveCamera(45, 1 / 1, 0.1, 1000);
   
   var onresize = function(e) {
-    resize();
+    var width;
+    var height;
+      //width = $("#"+element).innerWidth();
+    //height = $("#"+element).innerHeight();
+    width = JCODE.DomElement.clientWidth;
+    height = JCODE.DomElement.clientHeight;
     renderer.setSize(width, height);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
   };
   window.addEventListener('resize', onresize, false);
+  onresize();
 
   // 方眼紙を書く
   if (false) {
