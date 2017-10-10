@@ -240,7 +240,6 @@ Code.LANG = Code.getLang();
  * @private
  */
 Code.TABS_ = ['blocks', 'javascript', 'xml'];
-
 Code.selected = 'blocks';
 
 /**
@@ -283,8 +282,7 @@ Code.tabClick = function(clickedName) {
   Code.selected = clickedName;
   document.getElementById('tab_' + clickedName).className = 'tabon';
   // Show the selected pane.
-  document.getElementById('content_' + clickedName).style.visibility =
-      'visible';
+  document.getElementById('content_' + clickedName).style.visibility = 'visible';
   Code.renderContent();
   if (clickedName == 'blocks') {
     Code.workspace.setVisible(true);
@@ -355,6 +353,8 @@ Code.initBlockly = function(toolboxText) {
 
   var rtl = Code.isRtl();
   var container = document.getElementById('content_area');
+
+/*
   var onresize = function(e) {
     // container の調整
     //$('#content_area').height($('#bottom-component').height() - $('#content_panel').height() - 64);
@@ -383,6 +383,7 @@ Code.initBlockly = function(toolboxText) {
     }
   };
   window.addEventListener('resize', onresize, false);
+*/
 
   // The toolbox XML specifies each category name using Blockly's messaging
   // format (eg. `<category name="%{BKY_CATLOGIC}">`).
@@ -416,13 +417,10 @@ Code.initBlockly = function(toolboxText) {
   // カスタムツールボックス
   //Code.workspace.registerToolboxCategoryCallback(
   //  'JCODE_OBJECT', JCODE.jcodeObjectCallback);
-  Code.workspace.registerToolboxCategoryCallback(
-    'JCODE_THREE', JCODE.three.toolbox);
-  Code.workspace.registerToolboxCategoryCallback(
-    'JCODE_INSTRUCTION', JCODE.jcodeInstractionCallback);
- 
+  Code.workspace.registerToolboxCategoryCallback('JCODE_THREE', JCODE.three.toolbox);
+  Code.workspace.registerToolboxCategoryCallback('JCODE_INSTRUCTION', JCODE.jcodeInstractionCallback);
   
-      // Add to reserved word list: Local variables in execution environment (runJS)
+  // Add to reserved word list: Local variables in execution environment (runJS)
   // and the infinite loop detection function.
   Blockly.JavaScript.addReservedWords('code,timeouts,checkTimeout');
 
@@ -436,8 +434,7 @@ Code.initBlockly = function(toolboxText) {
 
   Code.tabClick(Code.selected);
 
-  Code.bindClick('trashButton',
-      function() {Code.discard(); Code.renderContent();});
+  Code.bindClick('trashButton', function() {Code.discard(); Code.renderContent();});
   //function() {JCODE.removeAllFromPlayground()});
 
 
@@ -452,7 +449,7 @@ Code.initBlockly = function(toolboxText) {
     Code.bindClick(linkButton,
       //function() {BlocklyStorage.link(Code.workspace);});
       function() {BlocklyStorage.backupBlocks_(Code.workspace);});
-    } else if (linkButton) {
+  } else if (linkButton) {
     linkButton.className = 'disabled';
   }
 
@@ -461,7 +458,7 @@ Code.initBlockly = function(toolboxText) {
     Code.bindClick('tab_' + name,
         function(name_) {return function() {Code.tabClick(name_);};}(name));
   }
-  onresize();
+  //onresize();
   Blockly.svgResize(Code.workspace);
 
   // Lazy-load the syntax-highlighting.
@@ -502,6 +499,8 @@ Code.initLanguage = function() {
     }
     languageMenu.options.add(option);
   }
+  languageMenu.addEventListener('change', Code.changeLanguage, true);
+  
   
   // Inject language strings.
   document.title += ' ' + MSG['title'];
@@ -556,6 +555,8 @@ document.write('<script src="/blockly/msg/js/' + Code.LANG + '.js"></script>\n')
 
 //window.addEventListener('load', Code.init);
 //window.addEventListener('load', init);
+
+/*
 window.addEventListener("load", function(event) {
   console.log("All resources finished loading!");
 
@@ -564,20 +565,6 @@ window.addEventListener("load", function(event) {
   
   JCODE.init();
   // reload Blocks
-  languageMenu.addEventListener('change', Code.changeLanguage, true);
   
-/*  // 初期化
-  JCODE.instruction ={};
-  JCODE.instruction.init = function() {
-    JCODE.instruction.balloon = new JCODE.balloon();
-
-    JCODE.instruction.add = new 
-    function(html) {
-        $('#JCODE-instruction').html(html)
-    };
-
-    return this;
-  };
-  JCODE.instruction.init();
-*/
 });
+*/

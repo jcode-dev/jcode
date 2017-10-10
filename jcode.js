@@ -263,3 +263,12 @@ JCODE.runScript = function(inst) {
     alert(MSG['badCode'].replace('%1', e));
   }
 };
+
+/*
+window.addEventListener("load", function(event) {
+  console.log("All resources finished loading!");
+  
+  JCODE.init();
+  
+});
+*/

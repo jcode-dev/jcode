@@ -199,7 +199,7 @@ JCODE.object3d.prototype.setScale = function( s ) {
 }
 
 JCODE.object3d.prototype.loader = function( config ){
-  console.log("config:", config);
+  //console.log("config:", config);
   
   var shape = config.shape || 'sphere';
   var group = config.group || 'playground';
