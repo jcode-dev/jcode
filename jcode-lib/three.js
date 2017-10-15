@@ -1,5 +1,19 @@
 /**
- * THREE blockly
+ * blockly threejs support
+ * Group Object の管理
+ *
+ * = new JCODE.object3d()
+ * setColor()
+ * setScale()
+ * setSpeed()
+ * setTransparent()
+ * moveForward()
+ * turnRight()
+ * lookUpward()
+ * AxisHelper()
+ * clearGroup()
+ * scene_add()
+ * 
  */
 JCODE.three = {};
 
@@ -172,6 +186,7 @@ JCODE.object3d.prototype.setColor = function( color ) {
   } else {
     console.log("Can't set mesh.material.color !")
   }
+  return this;
 }
 JCODE.object3d.prototype.setOpacity = function( opacity ) {
   if (this.coloredMesh && this.coloredMesh.material) {

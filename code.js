@@ -294,12 +294,19 @@ Code.tabClick = function(clickedName) {
  * Populate the currently selected pane with content generated from the blocks.
  */
 Code.renderContent = function() {
+  function removeId(txt){
+    return txt.replace(/id=".*?"/g, "");
+  }
+ 
   var content = document.getElementById('content_' + Code.selected);
   // Initialize the pane.
   if (content.id == 'content_xml') {
     var xmlTextarea = document.getElementById('content_xml');
     var xmlDom = Blockly.Xml.workspaceToDom(Code.workspace);
     var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
+    //console.log(xmlText);
+    xmlText = removeId(xmlText);
+    //console.log(xmlText);
     xmlTextarea.value = xmlText;
     xmlTextarea.focus();
   } else if (content.id == 'content_javascript') {
@@ -384,7 +391,6 @@ Code.initBlockly = function(toolboxText) {
   };
   window.addEventListener('resize', onresize, false);
 */
-
   // The toolbox XML specifies each category name using Blockly's messaging
   // format (eg. `<category name="%{BKY_CATLOGIC}">`).
   // These message keys need to be defined in `Blockly.Msg` in order to
@@ -458,8 +464,12 @@ Code.initBlockly = function(toolboxText) {
     Code.bindClick('tab_' + name,
         function(name_) {return function() {Code.tabClick(name_);};}(name));
   }
-  //onresize();
-  Blockly.svgResize(Code.workspace);
+
+  var onresize = function(e) {
+    Blockly.svgResize(Code.workspace);
+  }
+  window.addEventListener('resize', onresize, false);
+  onresize();
 
   // Lazy-load the syntax-highlighting.
   window.setTimeout(Code.importPrettify, 1);
