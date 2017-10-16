@@ -138,14 +138,21 @@ JCODE.three.toolbox = function(workspace) {
   }              
 })();
 
+/*
+* Three オブジェクト拡張
+*/
 
+JCODE.temp = function() {
+  THREE.Group.call(this);
+}
+JCODE.temp.prototype = new THREE.Group();
+JCODE.temp.prototype.print = function() {
+  console.log("print:");
+}
 
 JCODE.object3d = function(shape){
   var config = {};
-  //this.shape = shape;
   if (typeof shape == "object") {
-    //this.shape = shape.shape;
-    //this.group = shape.group;
     config = shape;
   } else if (typeof shape == "string") {
     config.shape = shape;
@@ -177,7 +184,8 @@ JCODE.clearGroup = function(group, config) {
   }
   JCODE[group] = new THREE.Group();
   JCODE.scene.add(JCODE[group]);
-  JCODE[group].userData.config = nconfig;  
+  JCODE[group].userData.config = nconfig;
+  return this;  
 }
 
 JCODE.object3d.prototype.setColor = function( color ) {
@@ -195,14 +203,17 @@ JCODE.object3d.prototype.setOpacity = function( opacity ) {
   } else {
     console.log("Can't set mesh.material.opacity !")
   }
+  return this;  
 }
 JCODE.object3d.prototype.setTransparent = function( t ) {
   var opacity = t ? 1 - (t / 100) : 1;
   this.setOpacity(opacity);
+  return this;  
 }
 
 JCODE.object3d.prototype.setSpeed = function( speed ) {
   this.speed = speed;
+  return this;  
 }
 
 JCODE.object3d.prototype.setScale = function( s ) {
@@ -211,6 +222,7 @@ JCODE.object3d.prototype.setScale = function( s ) {
   } else {
     console.log("Can't set scale !")
   }
+  return this;  
 }
 
 JCODE.object3d.prototype.loader = function( config ){
@@ -421,6 +433,7 @@ JCODE.object3d.prototype.wait = function (sec) {
       })
     }
   );
+  return this;  
 }
 
 JCODE.object3d.prototype.moveForward = function (d) {
@@ -455,6 +468,7 @@ JCODE.object3d.prototype.moveForward = function (d) {
       });
     }
   );
+  return this;  
 }
 
 JCODE.object3d.prototype.turnRight = function (d) {
@@ -493,6 +507,7 @@ JCODE.object3d.prototype.turnRight = function (d) {
       })
     }
   );
+  return this;  
 }
 JCODE.object3d.prototype.lookUpward = function (d) {
   var outer = this.outer;
@@ -533,26 +548,27 @@ JCODE.object3d.prototype.lookUpward = function (d) {
       })
     }
   );
+  return this;  
 }
 
 JCODE.object3d.prototype.update = function () {
   this.step += 0.025;
   this.outer.rotation.y = (Math.cos(this.step)) /2;//- Math.PI / 4;
-  return;
+  return this;  
 }
 JCODE.object3d.prototype.update2 = function () {
   // rotate the cube around its axes
   this.outer.rotation.x += 0.002;
   this.outer.rotation.y += 0.002;
   this.outer.rotation.z += 0.002;
-  return;
+  return this;  
 }
 JCODE.object3d.prototype.update1 = function () {
   // bounce the sphere up and down
   this.step += 0.04;
   this.outer.position.x = 20 + ( 10 * (Math.cos(this.step)));
   this.outer.position.y = 2 + ( 10 * Math.abs(Math.sin(this.step)));
-  return;
+  return this;  
 }
 
 

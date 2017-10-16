@@ -102,7 +102,7 @@
 			<source src="/jcode/sounds/people-people-stadium-cheer1.mp3" type="audio/mp3">
 	</audio>
 
-	<nav class="navbar is-info">
+	<nav id="top_nav" class="navbar is-info">
 		<div class="navbar-brand">
 			<span class="nav-item is-size-4-desktop" href="/" id="title">
 				プログラミング教育研究所
@@ -125,8 +125,8 @@
 	<section class="tile is-ancestor is-vertical" style="margin-top:-9px;background:#EFEFEF">
 		<div class="tile is-parent is-primary">
 
-			<article class="tile is-child is-6">
-				<div id="threejs-canvas" style="height:300px;">
+			<article class="tile is-child is-6" style="height:300px;" id="threejs_win" >
+				<div id="threejs-canvas" style="width:100%;height:100%;overflow: hidden;" >
 				</div>
 				<div id="WebGL-ui">
 						<div id="vr-button"></div>
@@ -143,7 +143,7 @@
 			<article class="tile is-child is-primary">
 
 				<div class="tabs is-left is-marginless">
-					<ul style="height:42px">
+					<ul id="middle_pannel" style="height:42px">
 						<li><a id="tab_blocks" class="tabon is-active">...</a></li>
 						<li><a id="tab_javascript" class="taboff">JavaScript</a></li>
 						<li><a  id="tab_xml" class="taboff">XML</a></li>
@@ -193,6 +193,24 @@
 	</section>
 
 <script>
+// top_nav
+//threejs-canvas
+//middle_pannel
+// content_area 300px
+$(document).ready(function() {
+
+  var wh = $(window).height();
+  var nh = $("#top_nav").height();
+  var th = $("#threejs_win").height();
+  var ph = $("#middle_pannel").height();
+  var eh = $("#content_area").height();
+  var rh = wh - nh - th - ph - eh - 39;
+  console.log(rh);
+  if ((eh + rh) > 100) {
+    $("#content_area").height(eh + rh);
+  }
+  $('#threejs_win').funcResizeBox({ });
+});
 
 function clearTeachersGroup(){
   JCODE.clearGroup ("tehon",{shape:"sphere", color:'#ffffff', speed:2, scale:0.9, opacity:0.5, arrow:"always"});
@@ -694,6 +712,53 @@ $(function(){
 
 		<category name="3Dオブジェクト(all)" colour="#abcc52" custom="JCODE_THREE"></category>>
 		<category name="インストラクション" colour="%{BKY_COLOUR_HUE}" custom="JCODE_INSTRUCTION"></category>>
+
+		<category name="3Dオブジェクトnew" colour="#abcc52">
+      <block type="variables_set"  x="13" y="13">
+        <field name="VAR"  variabletype="">obj</field>
+        <value name="VALUE">
+          <block type="THREE_constr_blocks" >
+            <mutation arg0="true" arg1="false"></mutation>
+            <field name="CODE">new JCODE.object3d</field>
+            <value name="ARG0">
+              <shadow type="three_typeName" >
+                <field name="FIELDNAME">sphere</field>
+              </shadow>
+            </value>
+          </block>
+        </value>
+      </block>
+      <block type="THREE_method_blocks"  x="63" y="63">
+        <mutation args="1"></mutation>
+        <field name="OUTPUT">FALSE</field>
+        <field name="CODE">.moveForward</field>
+        <value name="OBJECT">
+          <shadow type="variables_get" >
+            <field name="VAR"  variabletype="">obj</field>
+          </shadow>
+        </value>
+        <value name="ARG0">
+          <shadow type="math_number" >
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="THREE_accessor_blocks"  x="38" y="88">
+        <mutation args="1"></mutation>
+        <field name="OUTPUT">FALSE</field>
+        <field name="CODE">.setSpeed</field>
+        <value name="OBJECT">
+          <shadow type="variables_get" >
+            <field name="VAR"  variabletype="">obj</field>
+          </shadow>
+        </value>
+        <value name="ARG0">
+          <shadow type="math_number" >
+            <field name="NUM">2</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
 
 	</xml>
 </body>
