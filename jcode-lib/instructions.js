@@ -6,16 +6,17 @@ JCODE.balloon
 
 // インストラクション ブロックの定義
 JCODE.jcodeInstractionCallback = function(workspace) {
-var list = [
-  "THREE_constr_blocks",
-  "THREE_method_blocks",
-  "THREE_accessor_blocks",
-  "THREE_prop_blocks",
-  "JCODE_instruction_new",
-    "JCODE_instruction_html",
-    "JCODE_instruction_click"
-];
-var xmlList = [];
+  var list = [
+    "THREE_constr_blocks",
+    "THREE_method_blocks",
+    "THREE_accessor_blocks",
+    "THREE_prop_blocks",
+    "JS_method_blocks",
+    "JCODE_instruction_new",
+      "JCODE_instruction_html",
+      "JCODE_instruction_click"
+  ];
+  var xmlList = [];
   for (var i = 0; i < list.length; i++) {
     var blockText = '<xml>' +
         '<block type="'+list[i]+'">' +
@@ -330,6 +331,188 @@ var xmlList = [];
     });
   }
 
+
+  ////////////////////////////////////////////
+  // METHOD
+  function setupMethod2Blocks(config) {
+    var config = config;
+
+    // プロパティ　ブロック
+    // インストラクションの初期化
+    Blockly.Blocks[config.blockname] = {
+    
+      init: function() {
+    
+        this.appendDummyInput()
+        .appendField(new Blockly.FieldCheckbox('FALSE'),'OUTPUT');
+
+        if (config.objects) {
+          this.appendValueInput('OBJECT');
+        }
+        this.appendDummyInput().appendField('', 'LABEL1');
+        this.appendDummyInput().appendField(new Blockly.FieldDropdown(getOptions(config.list)), 'CODE');
+        this.appendDummyInput().appendField('', 'LABEL2');
+        this.appendValueInput('ARG0');
+        this.appendDummyInput().appendField('', 'LABEL3');
+          
+        this.jsonInit({
+          "inputsInline": true,
+          "nextStatement": null,
+          "previousStatement": null,
+          "colour": config.color,
+          "mutator": config.mutatorname
+        });
+        // Assign 'this' to a variable for use in the tooltip closure below.
+        var thisBlock = this;
+      }
+    };
+    
+    Blockly.JavaScript[config.blockname] = function(block) {
+      var obj = Blockly.JavaScript.valueToCode(block, 'OBJECT', Blockly.JavaScript.ORDER_MEMBER);
+      var method = this.getFieldValue('CODE');
+      var args = '(';
+      if (!! this.getInput('ARG0')) {
+        args += Blockly.JavaScript.valueToCode(block, 'ARG0', Blockly.JavaScript.ORDER_MEMBER);
+      }
+      if (!! this.getInput('ARG1')) {
+        args += ',';
+        args += Blockly.JavaScript.valueToCode(block, 'ARG1', Blockly.JavaScript.ORDER_MEMBER);
+      }
+      args += ')';
+    
+      if (! this.outputConnection) {
+        var code = obj + method + args + ';\n';
+        return code;
+      } else {
+        var code = obj + method + args;
+        return [code, Blockly.JavaScript.ORDER_MEMBER];
+      }
+    };
+
+    Blockly.Extensions.registerMutator(config.mutatorname, {
+      output_: false,
+      argsNumber_: 1,
+      method: "error",
+      
+      checkCode_: function(method) {
+        this.method = method;
+        this.updateStatement_();
+      },
+      checkOutput_: function(op) {
+        if (op) {
+          this.output_ = true;
+        } else {
+          this.output_ = false;
+        }
+        this.updateStatement_();
+      },
+      /**
+       * Create XML to represent whether the 'divisorInput' should be present.
+       * @return {Element} XML storage element.
+       * @this Blockly.Block
+       */
+      mutationToDom: function() {
+        var container = document.createElement('mutation');
+
+        if (this.output_) {
+          container.setAttribute('output', this.output_);
+        }
+        if (this.argsNumber_) {
+          container.setAttribute('args', this.argsNumber_);
+        }
+        //if (this.method) {
+        //  container.setAttribute('method', this.method);
+        //}
+        this.checkCode_(this.getFieldValue('CODE'));
+        this.checkOutput_(this.getFieldValue('OUTPUT')=="TRUE");
+
+        return container;
+      },
+      /**
+       * Parse XML to restore the 'divisorInput'.
+       * @param {!Element} xmlElement XML storage element.
+       * @this Blockly.Block
+       */
+      domToMutation: function(xmlElement) {
+        var a = xmlElement.getAttribute('output');
+        if (a && a === "true") {
+          this.output_ = true;
+        }
+        //var a = xmlElement.getAttribute('method');
+        //if (a) {
+        //  this.method = a;
+        //}
+        var a = (xmlElement.getAttribute('args'));
+        if (a) {
+          this.argsNumber_ = a;
+        }
+        //console.log("domToMutation:",this.output_);
+        
+        this.updateStatement_();
+      },
+      /**
+       * Modify this block to have (or not have) an input for 'is divisible by'.
+       * @param {boolean} divisorInput True if this block has a divisor input.
+       * @private
+       * @this Blockly.Block
+       */
+      // newStatement == true 値を返す関数
+      updateStatement_: function() {
+
+        //var method = this.method;
+        var method = this.method;
+        var label = getLabels(config.list, method);
+
+       // console.log("method:",method);
+
+        this.getField('LABEL1').setText(label[1]);
+        this.getField('LABEL3').setText(label[3]);
+        
+        var newStatement = this.output_;
+        var oldStatement = !! this.outputConnection;
+        if (newStatement != oldStatement) {
+          this.unplug(true, true);
+          //console.log("unplug");
+          if (newStatement) {
+            this.setPreviousStatement(false);
+            this.setNextStatement(false);
+            this.setOutput(true);
+          } else {
+            this.setOutput(false);
+            this.setPreviousStatement(true);
+            this.setNextStatement(true);
+          }
+        }
+    
+        //this.render();
+        var newStatement = this.argsNumber_ || "0";
+        var oldStatement = this.getInput('ARG0') ? "1": "0";
+          if (newStatement != oldStatement) {
+          console.log("ccc");
+          if (newStatement == "0") {
+            this.removeInput('ARG0', true);
+          } else {
+            this.appendValueInput('ARG0')
+            .appendField("value:");
+            //this.appendDummyInput('DUMMY')
+            //.appendField('とする');
+          }
+        }
+      }
+    },
+    function() {
+      this.getField('CODE').setValidator(function(option) {
+        this.sourceBlock_.checkCode_(option);
+        this.sourceBlock_.updateStatement_();
+      });
+      this.getField('OUTPUT').setValidator(function(option) {
+        this.sourceBlock_.checkOutput_(option);
+        this.sourceBlock_.updateStatement_();
+      });
+    });
+  }
+  ////////////////////////////////////////////
+  // PROP
   function setupPropBlocks(
     dropDownList,
     blockName,
@@ -519,6 +702,7 @@ Blockly.Extensions.registerMutator(mutatorName,
   }
 
   var THREE_BLOCKS_COLOR = 60;
+  var JS_BLOCKS_COLOR = 20;
 
   setupConstrBlocks({
     
@@ -534,15 +718,17 @@ Blockly.Extensions.registerMutator(mutatorName,
 
   },'THREE_method_blocks','THREE_method_mutator',THREE_BLOCKS_COLOR);
 
-  setupMethodBlocks({
-    
-    ".setColor":    ["の 色 は", "%% %"],
-    ".setScale":    ["の 大きさ は", "%% %倍"],
-    ".setSpeed":    ["の 速さ は", "%% %倍"],
-    ".setTransparent": ["の とうめいど は", "%% %％"],
+  setupMethod2Blocks({
+    objects: 0, args: 1, color:THREE_BLOCKS_COLOR,
+    blockname:'THREE_accessor_blocks', mutatorname:'THREE_accessor_mutator',
+    list: {
+      ".setColor":    ["の 色 は", "%% %"],
+      ".setScale":    ["の 大きさ は", "%% %倍"],
+      ".setSpeed":    ["の 速さ は", "%% %倍"],
+      ".setTransparent": ["の とうめいど は", "%% %％"],
+      }
+  });
 
-  },'THREE_accessor_blocks','THREE_accessor_mutator',THREE_BLOCKS_COLOR);
-    
   setupPropBlocks({
 
     ".position.x": ["X座標", "%の% %"],
@@ -551,8 +737,15 @@ Blockly.Extensions.registerMutator(mutatorName,
 
   },'THREE_prop_blocks','THREE_prop_mutator',THREE_BLOCKS_COLOR);
 
+  setupMethod2Blocks({
+    objects: 0, args: 1, color:JS_BLOCKS_COLOR,
+    blockname:'JS_method_blocks', mutatorname:'JS_method_mutator',
+    list: {
+      "console.log": ["コンソールログ", "%%%"],
+      "document.getElementById": ["ID要素をさがす", "%%%"]
+    }
+  });
 })();
-
 
 Blockly.Blocks['JCODE_instruction_new'] = {
     init: function() {
