@@ -371,7 +371,7 @@ JCODE.object3d.loadJson = function() {
       "type": "Group",
       "name": "Group 1",
       "castShadow": true,
-      "receiveShadow": true,
+      "receiveShadow": false,
       "matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,1,0,1],
       "children": [
         {
@@ -387,7 +387,7 @@ JCODE.object3d.loadJson = function() {
           "type": "Mesh",
           "name": "PinCylinder",
           "castShadow": true,
-          "receiveShadow": true,
+          "receiveShadow": false,
           "matrix": [2,0,0,0,0,3,0,0,0,0,2,0,0,2,0,1],
           "geometry": "A61FD6B3-F839-47C7-AD6B-9D5A315A1DE6",
           "material": "88520194-9788-4DAF-B6FD-6BE274E14BA7"
@@ -397,7 +397,7 @@ JCODE.object3d.loadJson = function() {
           "type": "Mesh",
           "name": "Sphere 3",
           "castShadow": true,
-          "receiveShadow": true,
+          "receiveShadow": false,
           "matrix": [1.5,0,0,0,0,1.5,0,0,0,0,1.5,0,0,6.260093,0,1],
           "geometry": "40EA369E-5851-47C5-AF00-61749FADF2B7",
           "material": "94AF5EDB-0D0D-41A4-BF52-757696683E5F"
