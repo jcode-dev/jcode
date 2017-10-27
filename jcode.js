@@ -266,28 +266,35 @@ JCODE.initThreejs = function() {
   camera.position.set(15, 25, 45);
   camera.lookAt(scene.position);
 
+  var hemiLight = new THREE.HemisphereLight(0x0c00d9, 0xffffff, 0.18);
+  hemiLight.position.set(0, 500, 0);
+  scene.add(hemiLight);
+
   // add DirectionalLight for the shadows
   var directionalLight = new THREE.DirectionalLight("#ffffff");
   directionalLight.position.set( 100, 100, 100);
   directionalLight.castShadow = true;
   directionalLight.intensity = 1.2;
 
-  directionalLight.shadow.camera.near = 2;
-  directionalLight.shadow.camera.far = 300;
-  directionalLight.shadow.camera.left = -50;
-  directionalLight.shadow.camera.right = 50;
-  directionalLight.shadow.camera.top = 50;
-  directionalLight.shadow.camera.bottom = -50;
-   
+  directionalLight.shadow.camera.near = 0.5;
+  directionalLight.shadow.camera.far = 400;
+  directionalLight.shadow.camera.left = -100;
+  directionalLight.shadow.camera.right = 200;
+  directionalLight.shadow.camera.top = 100;
+  directionalLight.shadow.camera.bottom = -100;
+  directionalLight.shadow.mapSize.width = 2048;
+  directionalLight.shadow.mapSize.height = 2048;
   scene.add(directionalLight);
+  //var directionalLightHelper = new THREE.DirectionalLightHelper( directionalLight);
+  //scene.add( directionalLightHelper);
 
   if (false) {
-   // 床を書く
-  addFloor();
+
+   addFloor();   // 床を書く
   
   } else {
  
-    addGround();
+   addGround();  // 芝生を書く
     
   }
 	//スカイドームの利用
@@ -332,14 +339,10 @@ JCODE.initThreejs = function() {
 }
 
 JCODE.project = {
+  selectedIndex: 0,
   name: "テスト",
   type: "project",
   children:[
-    {
-      name: "プログラム0",
-      type: "jsxml",
-      xml:"",
-    },
     {
       name: "プログラム1",
       type: "jsxml",
@@ -350,7 +353,6 @@ JCODE.project = {
 
 JCODE.projectInit = function() {
 
-  var programs = JCODE.project.children;
   // Populate the language selection menu.
   var programMenu = document.getElementById('programMenu');
 
@@ -359,7 +361,9 @@ JCODE.projectInit = function() {
   function saveWorkspace() {
     var xmlDom = Blockly.Xml.workspaceToDom(Code.workspace);
     var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
-    JCODE.project.children[JCODE.project.selectedIndex].xml = xmlText;
+    if (JCODE.project.children && JCODE.project.selectedIndex) {
+      JCODE.project.children[JCODE.project.selectedIndex].xml = xmlText;
+    }
   }
   function loadBlocks() {
     var defaultXml = JCODE.project.children[JCODE.project.selectedIndex].xml;
@@ -379,21 +383,31 @@ JCODE.projectInit = function() {
       if (json && json.type && json.type == "project") {
         JCODE.project = json;
         loadBlocks();
+        if (!JCODE.project.selectedIndex) {
+          JCODE.project.selectedIndex = 0;
+        }
         console.log("restore:", url, JCODE.project.selectedIndex);
       }
     }
   }
   restoreBlocks();
-  programMenu.options.length = 0;
-  for (var i = 0; i < programs.length; i++) {
-    var option = new Option(programs[i].name, i);
-    if (i == JCODE.project.selectedIndex) {
-      option.selected = true;
-    }
-    programMenu.options.add(option);
-  }
 
+  function updateProgramMenu() {
+    var programs = JCODE.project.children;
+    programMenu.options.length = 0;
+    for (var i = 0; i < programs.length; i++) {
+      var option = new Option(programs[i].name, i);
+      if (i == JCODE.project.selectedIndex) {
+        option.selected = true;
+      }
+      programMenu.options.add(option);
+    }
+    programMenu.options.add(new Option('（新しく作る）', i));
+  }
+  updateProgramMenu();
+  
   window.addEventListener('unload', function() {
+    var url = window.location.href.split('#')[0];
     console.log("backup:", url, JCODE.project.selectedIndex);
     saveWorkspace();
     if ('localStorage' in window) {
@@ -406,12 +420,23 @@ JCODE.projectInit = function() {
   , false);
 
   programMenu.addEventListener('change', function(){
-    console.log("change program");
-    
-    console.log(programMenu.selectedIndex);
+    var programs = JCODE.project.children;
+    console.log("change program：", programMenu.selectedIndex);
     saveWorkspace();
     JCODE.project.selectedIndex = programMenu.selectedIndex;
-    loadBlocks();
+    if (programs.length < (programMenu.selectedIndex+1)) {
+      console.log("push", programMenu.selectedIndex);
+      programs.push({
+        name: "プログラム"+(programMenu.selectedIndex+1),
+        type: "jsxml",
+        xml:"",
+      });
+      Code.workspace.clear();
+      updateProgramMenu();
+      
+    } else {
+      loadBlocks();
+    }
   }, true);
 
 }

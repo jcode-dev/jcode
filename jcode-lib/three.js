@@ -108,21 +108,44 @@ JCODE.three.blocks = {
   }
 };
 
-// CUSTOM toolbox
-JCODE.three.toolbox = function(workspace) {
-  var prefix = "three_";
-  var obj = JCODE.three.blocks;
-  var xmlList = [];
-  for (var p in obj) {
-    var blockText = '<xml>' +
-    '<block type="'+prefix+p+'">' +
-    '</block>' +
-    '</xml>';
-    var block = Blockly.Xml.textToDom(blockText).firstChild;
-    xmlList.push(block);
-  }              
-  return xmlList;
-};
+if (false) {
+  // CUSTOM toolbox
+  JCODE.three.toolbox = function(workspace) {
+    var prefix = "three_";
+    var obj = JCODE.three.blocks;
+    var xmlList = [];
+    for (var p in obj) {
+      var blockText = '<xml>' +
+      '<block type="'+prefix+p+'">' +
+      '</block>' +
+      '</xml>';
+      var block = Blockly.Xml.textToDom(blockText).firstChild;
+      xmlList.push(block);
+    }              
+    return xmlList;
+  };
+
+} else {
+  // ブロック一覧
+  JCODE.three.toolbox = function(workspace) {
+
+    var xmlList = [];
+      var blocks = Blockly.Blocks;
+      for (var p in blocks) {
+        if (/lists_/.test(p)) {
+          var blockText = '<xml>' +
+          '<block type="'+ p +'">' +
+          '</block>' +
+          '</xml>';
+          var block = Blockly.Xml.textToDom(blockText).firstChild;
+          xmlList.push(block);
+    
+        }
+    }              
+    return xmlList;
+  };
+
+}
 
 (function() {
   var prefix = "three_";

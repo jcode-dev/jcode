@@ -7,6 +7,8 @@ JCODE.balloon
 // インストラクション ブロックの定義
 JCODE.jcodeInstractionCallback = function(workspace) {
   var list = [
+    "function_caller",
+    "function_declaration",
     "THREE_constr_blocks",
     "THREE_method_blocks",
     "THREE_accessor_blocks",
@@ -557,7 +559,8 @@ Blockly.Extensions.registerMutator(config.mutatorname,
     blockname:'THREE_prop_blocks', mutatorname:'THREE_prop_mutator',
     list: {
       ".map": ["マテリアルのマップ", "%の% %"],
-      ".map.needsUpdate": ["マテリアルのマップのアップデート", "%の% %"],
+      ".needsUpdate": ["のアップデート", "%の% %"],
+      ".castShadow": ["の影の生成", "%の% %"],
       ".position.x": ["X座標", "%の% %"],
       ".position.y": ["Y座標", "%の% %"],
       ".position.z": ["Z座標", "%の% %"]

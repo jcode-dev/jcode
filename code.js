@@ -223,7 +223,8 @@ Code.renderContent = function() {
   } else if (content.id == 'content_javascript') {
     var code = Blockly.JavaScript.workspaceToCode(Code.workspace);
     content.textContent = code;
-    if (typeof PR.prettyPrintOne == 'function') {
+
+    if (false && (typeof PR.prettyPrintOne == 'function')) {
       code = content.textContent;
       code = PR.prettyPrintOne(code, 'js');
       content.innerHTML = code;
