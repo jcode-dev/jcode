@@ -138,13 +138,9 @@ JCODE.resizeEvent = function() {
   window.dispatchEvent(event);
 }
 
-JCODE.initThreejs = function() {
-  var threeCanvas = "threejs-canvas";
-  var domElement = document.getElementById(threeCanvas);
-  
-  // 床を書く
-  function addFloor() {
-    // 地面
+// 床を書く
+JCODE.createFloor = function() {
+
     var floor = new THREE.Group();
     var planeGeometry = new THREE.PlaneGeometry(10, 10);
     function newmesh (color) {
@@ -170,85 +166,92 @@ JCODE.initThreejs = function() {
         floor.add(p);
       }
     }
-    scene.add(floor);
-  }
+    return floor;
 
-  function addGround() {
-    // ground
-    var loader = new THREE.TextureLoader();
-    
-    var groundTexture = loader.load( '/three/examples/textures/terrain/grasslight-big.jpg' );
-    groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
-    groundTexture.repeat.set( 25, 25 );
-    groundTexture.anisotropy = 16;
+}
 
-    var groundMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111, map: groundTexture } );
+// 芝生を作る
+JCODE.createGreen = function() {
+  // ground
+  var loader = new THREE.TextureLoader();
+  
+  var groundTexture = loader.load( '/three/examples/textures/terrain/grasslight-big.jpg' );
+  groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+  groundTexture.repeat.set( 25, 25 );
+  groundTexture.anisotropy = 16;
 
-    var mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 500, 500 ), groundMaterial );
-    mesh.position.y = 0.1;
-    mesh.rotation.x = - Math.PI / 2;
-    mesh.receiveShadow = true;
-    scene.add( mesh );
+  var groundMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111, map: groundTexture } );
 
-  }
+  var mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 500, 500 ), groundMaterial );
+  mesh.position.y = 0.1;
+  mesh.rotation.x = - Math.PI / 2;
+  mesh.receiveShadow = true;
+  return mesh;
 
+}
+
+//スカイドームの生成
+JCODE.createSkydome = function() {
+  var skydome = {
+    enabled : true,         //スカイドーム利用の有無
+    radius  : 300,           //スカイドームの半径
+    topColor : 0x2E52FF,     //ドーム天頂色
+    bottomColor : 0xFFFFFF,  //ドーム底面色
+    exp : 0.8,               //混合指数
+    offset : 20               //高さ基準点
+  };
+
+  //バーテックスシェーダー
+  var vertexShader = `
+    //頂点シェーダーからフラグメントシェーダーへの転送する変数
+    varying vec3 vWorldPosition;
+    void main() {
+      //ワールド座標系における頂点座標
+      vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+      vWorldPosition = worldPosition.xyz;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+    }
+  `
+  //フラグメントシェーダ―
+  var fragmentShader = `
+    //カスタムuniform変数の取得
+    uniform vec3 topColor;     //ドーム頂点色
+    uniform vec3 bottomColor;  //ドーム底辺色
+    uniform	float exp;         //減衰指数
+    uniform	float offset;      //高さ基準点
+    //バーテックスシェーダーから転送された変数
+    varying vec3 vWorldPosition;
+    void main() {
+      //高さの取得
+      float h = normalize(vWorldPosition + vec3(0, offset, 0)).y;
+      if( h < 0.0) h = 0.0;
+      gl_FragColor = vec4(mix(bottomColor, topColor, pow(h, exp)), 1.0);
+    }
+  `
+  var geometry = new THREE.SphereGeometry(skydome.radius, 100, 100);
+  var uniforms = {
+    topColor:  { type: "c", value: new THREE.Color().setHex(skydome.topColor) },
+    bottomColor:  { type: "c", value: new THREE.Color().setHex(skydome.bottomColor) },
+    exp:{ type: "f", value : skydome.exp  },
+    offset:{ type: "f", value :skydome.offset } //高さ基準点
+  };
+  //材質オブジェクトの宣言と生成
+  var material = new THREE.ShaderMaterial({
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
+    uniforms : uniforms,
+    side: THREE.BackSide,
+    depthWrite: false
+  });
   //スカイドームの生成
-  function addSkydome() {
-    var skydome = {
-			enabled : true,         //スカイドーム利用の有無
-			radius  : 300,           //スカイドームの半径
-			topColor : 0x2E52FF,     //ドーム天頂色
-			bottomColor : 0xFFFFFF,  //ドーム底面色
-			exp : 0.8,               //混合指数
-			offset : 20               //高さ基準点
-    };
+  return new THREE.Mesh(geometry, material);
+}
 
-    //バーテックスシェーダー
-    var vertexShader = `
-      //頂点シェーダーからフラグメントシェーダーへの転送する変数
-      varying vec3 vWorldPosition;
-      void main() {
-        //ワールド座標系における頂点座標
-        vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
-        vWorldPosition = worldPosition.xyz;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-      }
-    `
-    //フラグメントシェーダ―
-    var fragmentShader = `
-      //カスタムuniform変数の取得
-      uniform vec3 topColor;     //ドーム頂点色
-      uniform vec3 bottomColor;  //ドーム底辺色
-      uniform	float exp;         //減衰指数
-      uniform	float offset;      //高さ基準点
-      //バーテックスシェーダーから転送された変数
-      varying vec3 vWorldPosition;
-      void main() {
-        //高さの取得
-        float h = normalize(vWorldPosition + vec3(0, offset, 0)).y;
-        if( h < 0.0) h = 0.0;
-        gl_FragColor = vec4(mix(bottomColor, topColor, pow(h, exp)), 1.0);
-      }
-    `
-    var geometry = new THREE.SphereGeometry(skydome.radius, 100, 100);
-    var uniforms = {
-      topColor:  { type: "c", value: new THREE.Color().setHex(skydome.topColor) },
-      bottomColor:  { type: "c", value: new THREE.Color().setHex(skydome.bottomColor) },
-      exp:{ type: "f", value : skydome.exp  },
-      offset:{ type: "f", value :skydome.offset } //高さ基準点
-    };
-    //材質オブジェクトの宣言と生成
-    var material = new THREE.ShaderMaterial({
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
-      uniforms : uniforms,
-      side: THREE.BackSide,
-      depthWrite: false
-    });
-    //スカイドームの生成
-    var skydome = new THREE.Mesh(geometry, material);
-    scene.add(skydome);
-  }
+
+JCODE.initThreejs = function() {
+  var threeCanvas = "threejs-canvas";
+  var domElement = document.getElementById(threeCanvas);
+  
 
   // create a scene, that will hold all our elements such as objects, cameras and lights.
   var scene = new THREE.Scene();
@@ -288,17 +291,9 @@ JCODE.initThreejs = function() {
   //var directionalLightHelper = new THREE.DirectionalLightHelper( directionalLight);
   //scene.add( directionalLightHelper);
 
-  if (false) {
-
-   addFloor();   // 床を書く
-  
-  } else {
- 
-   addGround();  // 芝生を書く
-    
-  }
-	//スカイドームの利用
-  addSkydome();
+  //scene.add(JCODE.createFloor());  // 床を書く
+  //scene.add(JCODE.createGreen());  // 芝生を書く
+  //scene.add(JCODE.createSkydome());  //スカイドームの利用
  
   // マウスのコントロール
   var controls = new THREE.OrbitControls( camera, domElement );
@@ -361,7 +356,10 @@ JCODE.projectInit = function() {
   function saveWorkspace() {
     var xmlDom = Blockly.Xml.workspaceToDom(Code.workspace);
     var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
-    if (JCODE.project.children && JCODE.project.selectedIndex) {
+    if (!JCODE.project.selectedIndex) {
+      JCODE.project.selectedIndex = 0;
+    }
+    if (JCODE.project.children) {
       JCODE.project.children[JCODE.project.selectedIndex].xml = xmlText;
     }
   }

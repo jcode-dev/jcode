@@ -5,7 +5,9 @@
 
 function startLesson() {
 
-  //document.getElementById("broadcasting-start1").play();
+  JCODE.scene.add(JCODE.createGreen());  // 芝生を書く
+  JCODE.scene.add(JCODE.createSkydome());  //スカイドームの利用
+//document.getElementById("broadcasting-start1").play();
   print(`
   自由にすきなグラフィックスをつくろう。<br />
   下の「リフレッシュ」ボタンを押すと、すべてのオブジェクトをけして、画面をクリアできます。<br />
