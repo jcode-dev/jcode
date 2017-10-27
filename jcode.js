@@ -346,6 +346,18 @@ JCODE.project = {
   ]
 };
 
+// ブロックをテキスト形式のＸＭＬで返す。保存可能な形式。
+JCODE.getWorkspaceXml = function() {
+  var xmlDom = Blockly.Xml.workspaceToDom(Code.workspace);
+  return Blockly.Xml.domToPrettyText(xmlDom);
+}
+// ブロックをテキスト形式のＸＭＬでワークスペースに入れ込む。
+JCODE.putWorkspaceXml = function(defaultXml) {
+  Code.workspace.clear();
+  var xml = Blockly.Xml.textToDom(defaultXml);
+  Blockly.Xml.domToWorkspace(xml, Code.workspace);
+}
+
 JCODE.projectInit = function() {
 
   // Populate the language selection menu.
@@ -354,20 +366,17 @@ JCODE.projectInit = function() {
   // ワークスペースの初期化
   //Code.workspace.clear();
   function saveWorkspace() {
-    var xmlDom = Blockly.Xml.workspaceToDom(Code.workspace);
-    var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
+    //var xmlDom = Blockly.Xml.workspaceToDom(Code.workspace);
+    //var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
     if (!JCODE.project.selectedIndex) {
       JCODE.project.selectedIndex = 0;
     }
     if (JCODE.project.children) {
-      JCODE.project.children[JCODE.project.selectedIndex].xml = xmlText;
+      JCODE.project.children[JCODE.project.selectedIndex].xml = JCODE.getWorkspaceXml();
     }
   }
   function loadBlocks() {
-    var defaultXml = JCODE.project.children[JCODE.project.selectedIndex].xml;
-    Code.workspace.clear();
-    var xml = Blockly.Xml.textToDom(defaultXml);
-    Blockly.Xml.domToWorkspace(xml, Code.workspace);
+    JCODE.putWorkspaceXml(JCODE.project.children[JCODE.project.selectedIndex].xml);
   }
   function　restoreBlocks() {
     var url = window.location.href.split('#')[0];

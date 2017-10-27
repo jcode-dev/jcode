@@ -2,7 +2,7 @@ $(function() {
 
   // ログイン・ダイアログ
   function changeContents() {
-    console.log("change Contents!!");
+    //console.log("change Contents!!");
     $('#modal-open').addClass('is-active');
     $('html').addClass('is-clipped');
   }
@@ -31,6 +31,8 @@ $(function() {
   Code.bindClick('modal-close', changeContentsClose);
   Code.bindClick('loginOk', login);
 
+  Code.bindClick('sendCode', sendCode);
+  
   var FADE_TIME = 150; // ms
   var TYPING_TIMER_LENGTH = 400; // ms
   var COLORS = [
@@ -100,6 +102,10 @@ $(function() {
     print(message);
   }
 
+  function getUserNameColorSpan(username) {
+    return `<span style="color:`+getUsernameColor(username)+`;">`+username+`</span>`;
+  }
+
   // Adds the visual chat message to the message list
   function addChatMessage (data, options) {
     // Don't fade the message in if there is an 'X was typing'
@@ -110,8 +116,7 @@ $(function() {
       $typingMessages.remove();
     }
 
-      var msg = `<span style="color:`+getUsernameColor(data.username)+`;">`+data.username+": "+`</span>`;
-      msg += data.message;
+      var msg = getUserNameColorSpan(data.username)+" : "+data.message;
       print(msg);
 
   }
@@ -296,4 +301,40 @@ $(function() {
     log('attempt to reconnect has failed');
   });
 
+  // send code
+  function sendCode() {
+
+    if (connected) {
+      var json = "json";
+      socket.emit('send code', {
+        creator: username,
+        xml: JCODE.getWorkspaceXml()
+      });
+      log("プログラムを送信しました");
+    } else {
+      setUsername();
+    }
+  }
+  function reqCode(_id) {
+    socket.emit('req code', {
+      _id: _id
+    });
+    //console.log("プログラムを要求しました", _id);
+  }
+  socket.on('ack code',function (json) {
+    //console.log("プログラムがあります",json);
+    var msg = getUserNameColorSpan(json.creator) + 
+    "がプログラムを送りました。受け取りたければ<button onclick='JCODE.requestCode(\""+
+    json._id+"\");'>受け取りボタン</button>をクリック！";
+    print(msg);
+
+  });
+  socket.on('recv code',function (json) {
+    if (json && json.xml) {
+      JCODE.putWorkspaceXml(json.xml);
+    }
+    //console.log("プログラムを受け取りました", json);
+  });
+  JCODE.requestCode = reqCode;
 });
+
