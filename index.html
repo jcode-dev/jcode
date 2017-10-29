@@ -727,7 +727,97 @@ function nextLesson(func, timeout) {
 			<category name="%{BKY_CATFUNCTIONS}" colour="%{BKY_PROCEDURES_HUE}" custom="PROCEDURE"></category>
 		
 			<sep></sep>
-		
+      <category name="3Dオブジェクトnew" colour="#abcc52">
+        <block type="variables_set"  x="13" y="13">
+          <field name="VAR"  variabletype="">obj</field>
+          <value name="VALUE">
+            <block type="THREE_constr_blocks" >
+              <mutation arg0="true" arg1="false"></mutation>
+              <field name="CODE">new JCODE.object3d</field>
+              <value name="ARG0">
+                <shadow type="three_typeName" >
+                  <field name="FIELDNAME">sphere</field>
+                </shadow>
+              </value>
+            </block>
+          </value>
+        </block>
+        <block type="THREE_method_blocks"  x="63" y="63">
+          <mutation args="1"></mutation>
+          <field name="OUTPUT">FALSE</field>
+          <field name="CODE">.moveForward</field>
+          <value name="OBJECT">
+            <shadow type="variables_get" >
+              <field name="VAR"  variabletype="">obj</field>
+            </shadow>
+          </value>
+          <value name="ARG0">
+            <shadow type="math_number" >
+              <field name="NUM">10</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="THREE_accessor_blocks"  x="38" y="88">
+          <mutation args="1"></mutation>
+          <field name="OUTPUT">FALSE</field>
+          <field name="CODE">.setSpeed</field>
+          <value name="OBJECT">
+            <shadow type="variables_get" >
+              <field name="VAR"  variabletype="">obj</field>
+            </shadow>
+          </value>
+          <value name="ARG0">
+            <shadow type="math_number" >
+              <field name="NUM">2</field>
+            </shadow>
+          </value>
+        </block>
+
+
+          <block type="THREE_method_blocks"  x="-813" y="62">
+            <mutation args="1"></mutation>
+            <field name="OUTPUT">FALSE</field>
+            <field name="CODE">.turnRight</field>
+            <value name="OBJECT">
+              <shadow type="variables_get" >
+                <field name="VAR"  variabletype="">obj</field>
+              </shadow>
+            </value>
+            <value name="ARG0">
+              <shadow type="three_angle">
+                <field name="FIELDNAME">90</field>
+              </shadow>
+            </value>
+          </block>
+          <block type="THREE_accessor_blocks"  x="-812" y="138">
+            <mutation args="1"></mutation>
+            <field name="OUTPUT">FALSE</field>
+            <field name="CODE">.setColor</field>
+            <value name="OBJECT">
+              <shadow type="variables_get" >
+                <field name="VAR"  variabletype="">obj</field>
+              </shadow>
+            </value>
+            <value name="ARG0">
+              <shadow type="colour_picker" >
+                <field name="COLOUR">#ff0000</field>
+              </shadow>
+             </value>
+          </block>
+
+
+      </category>
+      
+	</xml>
+
+  <xml id="toolbox_new-dev" style="display: none">
+    
+    <category name="3Dオブジェクト(all)" colour="#abcc52" custom="JCODE_THREE"></category>
+    <category name="インストラクション" colour="%{BKY_COLOUR_HUE}" custom="JCODE_INSTRUCTION"></category>
+
+  </xml>
+
+  <xml id="toolbox_old-dev" style="display: none">
 		<category name="3Dオブジェクト" colour="#abcc52">
 			<block type="three_createNew">
 				<field name="VAR" variabletype="">obj</field>
@@ -793,61 +883,9 @@ function nextLesson(func, timeout) {
 					</shadow>
 				</value>
 			</block>
-		</category>>
-	</xml>
+		</category>
+  </xml>
 
-  <xml id="toolbox_new-dev" style="display: none">
-    
-  <category name="3Dオブジェクト(all)" colour="#abcc52" custom="JCODE_THREE"></category>>
-  <category name="インストラクション" colour="%{BKY_COLOUR_HUE}" custom="JCODE_INSTRUCTION"></category>>
-
-  <category name="3Dオブジェクトnew" colour="#abcc52">
-    <block type="variables_set"  x="13" y="13">
-      <field name="VAR"  variabletype="">obj</field>
-      <value name="VALUE">
-        <block type="THREE_constr_blocks" >
-          <mutation arg0="true" arg1="false"></mutation>
-          <field name="CODE">new JCODE.object3d</field>
-          <value name="ARG0">
-            <shadow type="three_typeName" >
-              <field name="FIELDNAME">sphere</field>
-            </shadow>
-          </value>
-        </block>
-      </value>
-    </block>
-    <block type="THREE_method_blocks"  x="63" y="63">
-      <mutation args="1"></mutation>
-      <field name="OUTPUT">FALSE</field>
-      <field name="CODE">.moveForward</field>
-      <value name="OBJECT">
-        <shadow type="variables_get" >
-          <field name="VAR"  variabletype="">obj</field>
-        </shadow>
-      </value>
-      <value name="ARG0">
-        <shadow type="math_number" >
-          <field name="NUM">10</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="THREE_accessor_blocks"  x="38" y="88">
-      <mutation args="1"></mutation>
-      <field name="OUTPUT">FALSE</field>
-      <field name="CODE">.setSpeed</field>
-      <value name="OBJECT">
-        <shadow type="variables_get" >
-          <field name="VAR"  variabletype="">obj</field>
-        </shadow>
-      </value>
-      <value name="ARG0">
-        <shadow type="math_number" >
-          <field name="NUM">2</field>
-        </shadow>
-      </value>
-    </block>
-  </category>
-</xml>
 
 </body>
 </html>
